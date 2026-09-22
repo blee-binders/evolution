@@ -1,0 +1,376 @@
+#+title: AI-Outputs --- Global Action Items Found During AI Collaboration
+#+AUTHOR: Mohsen BANAN
+#+OPTIONS: toc:4
+#+TAGS: me ai aiAndMe
+#+TODO: TODO WORKAROUND INFO | DONE
+
+* What This File Is
+
+A *central, cross-project ledger* of action items, defects and findings that
+Claude turns up while working --- items whose scope is *global*, not specific
+to whichever project they happened to be discovered in.
+
+It lives in =mother/= and is symlinked next to =CLAUDE.md= in each
+aiActivity base, the same way =AI-WORKFLOW.org= is. One file, many projects,
+edits visible everywhere immediately.
+
+This is the *first* instance of this file. The process around it is captured
+but not yet implemented --- see [[Process Design --- Captured, Not Yet
+Implemented]] at the end for the design discussion, the open decisions, and
+the work needed in =bisos.aiActivity=.
+
+** Keywords
+
+Entries use the not-done states declared in =#+TODO:= above:
+
+| Keyword      | Meaning                                                     |
+|--------------+-------------------------------------------------------------|
+| =TODO=       | Needs fixing. No workaround known, or none needed.          |
+| =WORKAROUND= | Broken, *and* a workaround is documented and in use. Still  |
+|              | needs an upstream fix. Highest broadcast value --- these    |
+|              | save the next Claude from rediscovering the breakage.       |
+| =INFO=       | Captured knowledge. No action required.                     |
+| =DONE=       | Resolved. Archivable via =/bx-archive=.                     |
+
+Each actionable entry carries a =:REPO:= property naming where the fix
+belongs --- these items are found in one repo and fixed in another, so
+without it dispatch becomes guesswork once the context is gone.
+
+** Provenance
+
+Items below were found 2026-09-10 / 2026-09-11 while migrating this host's
+Airflow from running as root to running as a dedicated =airflow= user, in
+=bisos-pip/airflow=.
+
+* Defects --- BISOS Framework Packages
+
+** WORKAROUND =sysdSysUnit remove= is broken
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/debian
+:FOUND: 2026-09-10
+:END:
+
+- *Where*: =bisos/debian/bifSystemd_csu.py:307=
+- *What*: =if self._serviceFilePath.is_file():= --- =_serviceFilePath= is a
+  =str=, not a =pathlib.Path=. Raises
+  =AttributeError: 'str' object has no attribute 'is_file'=.
+- *Impact*: =remove= (documented "stop + disable + unlink") is advertised in
+  the examples output of *every* planted systemd unit, so it looks
+  supported. It fails before doing anything --- safely, but with a raw
+  traceback.
+- *Observed*: =airflow-webserver-sysd.pcs -i sysdSysUnit remove=. Unit
+  remained active, enabled, and on disk.
+
+*Workaround*: decompose into the three sub-actions it was meant to chain.
+All three work:
+
+#+begin_example
+<unit>-sysd.pcs -i sysdSysUnit stop
+<unit>-sysd.pcs -i sysdSysUnit disable
+<unit>-sysd.pcs -i configFileDelete --cls="configFile_sysdUnit" --runAs="root"
+#+end_example
+
+** WORKAROUND =cbs_reMaterialize= is broken
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/capability
+:FOUND: 2026-09-11
+:END:
+
+- *Where*: =bisos/capability/cba_csu.py=, in =cbs_reMaterialize.cmnd()=
+- *What*: calls =cbs_materialize().pyCmnd(argsList=[""])=, but
+  =cbs_materialize= declares =cmndArgsLen = {'Min': 0, 'Max': 0}= and its
+  =cmnd()= accepts no =argsList=. Raises
+  =TypeError: cbs_materialize.cmnd() got an unexpected keyword argument 'argsList'=.
+- *Impact*: fails at dispatch, so *nothing* runs --- not even the
+  =cbmSymlinkToThisCbs enable= step that precedes it. Fails safely.
+- *Observed*: =airflow-cbs.pcs -i cbs_reMaterialize= --- exit 1, no leaf
+  created, no units written.
+
+*Workaround*: run the two halves separately.
+
+#+begin_example
+<name>-cbs.pcs -i cbmSymlinkToThisCbs enable
+<name>-cbs.pcs -i cbs_materialize
+#+end_example
+
+*Also check*: =cbs_deMaterialize= ("Disable + UnMaterialize") is the mirror
+command and was never exercised --- likely the same shape of bug.
+
+** TODO Unit templates fail *silently* when the binary is not on PATH
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/debian
+:FOUND: 2026-09-11
+:END:
+
+- *Where*: the generic =sysdUnitFileFunc()= pattern in seeded units, e.g.
+  =bisos-pip/airflow/py3/bin/airflow-*-sysd.pcs=:
+
+  #+begin_src python
+  if ( execPath := pathPlus.whichBinPath("airflow",) ) is None: return None
+  #+end_src
+
+- *What*: when the binary is absent the function returns =None=, and
+  =configFileStdout= / =configFileUpdate= emit *empty output with no
+  diagnostic*. No unit file is written and nothing says why.
+- *Impact*: the behaviour is correct (better than writing a broken unit) but
+  invisible. A materialization that silently produces zero unit files is
+  indistinguishable from one that never ran.
+- *Observed*: after removing airflow from =/bisos/venv/py3/bisos3=, all four
+  units rendered empty. Only recognisable because it had been predicted.
+- *Wanted*: report loudly, e.g.
+  ="airflow not found on PATH -- cannot generate unit; run the sbom first"=.
+- *Scope*: generic seeded pattern --- affects any =bisos.debian=-seeded unit
+  in any package, not just airflow.
+
+** TODO =AptPkg(func=...)= has no idempotency gate
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/sbom
+:FOUND: 2026-09-11
+:END:
+
+- *Where*: =bisos/sbom/sbom_csu.py:397-404= (apt), =:580-586= (pip),
+  =:936-944= (npm)
+- *What*: the only gate before calling =func()= is
+  =aptPkg_isInstalled(name)=. For a *func-bearing pseudo-package* --- a name
+  that is not a real apt package --- that predicate can never be true, so
+  =func()= runs on *every* =sbom_fullUpdate=.
+- *Impact*: a sharp edge rather than a crash. Anyone using =func== for
+  one-time setup (=useradd=, =mkdir=, writing =/etc= files) gets it
+  re-executed on every materialize; non-idempotent functions fail on the
+  second run (=useradd= exits 9).
+- *Handled locally*: =airflowAcctEnvSetup()= in =airflow-sbom.pcs= was made
+  idempotent --- =id airflow >/dev/null 2>&1 || sudo useradd ...=,
+  =mkdir -p=, and writing =/etc/default/airflow= only when absent so
+  hand-added overrides survive re-runs.
+- *Wanted*: either a separate idempotency predicate on =AptPkg=, or explicit
+  documentation of the re-run contract. Currently discoverable only by
+  reading =sbom_csu.py=.
+
+* Defects and Debt --- =bisos.airflow=
+
+** TODO Stale copies in =/bisos/asc/web/bin/= shadow the package on PATH
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos/asc/web
+:FOUND: 2026-09-11
+:PRIORITY: highest open risk
+:END:
+
+- *What*: =/bisos/asc/web/bin/= holds 8 =airflow-*.pcs= files --- the
+  predecessor installation, from before =bisos.airflow= existed as a
+  package. They come *first* on PATH:
+
+  #+begin_example
+  airflow-webserver-sysd.pcs  -> /bisos/asc/web/bin/airflow-webserver-sysd.pcs
+  airflow-sbom.pcs            -> /bisos/asc/web/bin/airflow-sbom.pcs
+  airflow-cbs.pcs             -> /bisos/asc/web/bin/airflow-cbs.pcs
+  #+end_example
+
+- *Why it matters*: those copies =diff= as pre-migration --- zero
+  occurrences of =User=airflow= or =airflowAcctEnvSetup=. Invoking any of
+  them *by bare name* re-materializes the **root-era** units over the top of
+  the migrated installation, silently and apparently successfully.
+- *Why nothing broke*: every invocation during the migration used an
+  explicit repo path. Deliberate, but not a durable safeguard.
+- *Action*: retire the =/bisos/asc/web/bin/= airflow copies, or ensure the
+  package wins on PATH.
+
+** TODO Version floor admits an Airflow that cannot work
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/airflow
+:FOUND: 2026-09-10
+:END:
+
+=airflow-sbom.pcs= pins =apache-airflow >=2.9.0=, while
+=airflow-webserver-sysd.pcs= hardcodes =api-server= --- the Airflow 3.x
+subcommand name (2.x uses =webserver=). An install satisfying the declared
+floor produces a broken =airflow-webserver.service=. Latent; masked today
+only because 3.3.1 is what actually installs.
+
+*Action*: raise the floor to =>=3.0= (or pin exactly), or make the
+subcommand version-aware.
+
+** TODO =AIRFLOW_HOME= duplicated with nothing enforcing agreement
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/airflow
+:FOUND: 2026-09-11
+:END:
+
+=_airflowHome = "/opt/airflow"= is declared independently in
+=py3/bin/airflow-sbom.pcs= and =py3/bin/airflowAdmin.cs=, and must *also*
+match what =airflowAcctEnvSetup()= writes into =/etc/default/airflow=, which
+is what the four units read via =EnvironmentFile=. Three places, no shared
+source.
+
+This is =airflowAdmin.cs='s own standing TODO ("Read AIRFLOW_HOME / port /
+fqdn from bisos.airflow's own config rather than hardcoding"). The migration
+fixed a worse bug there --- =pathlib.Path.home() / "airflow"=, which
+resolved to *the invoking user's* home rather than the installation's ---
+but replaced it with a second hardcoded constant rather than resolving the
+TODO. Blocked on there being nowhere to put it (see next).
+
+** TODO No =bisos.airflow= library surface
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/airflow
+:FOUND: 2026-09-10
+:END:
+
+=py3/bisos/airflow/__init__.py= is empty. =airflowAdmin.cs= and
+=quickAirflow.cs= both self-describe as "starting point --- not yet
+complete". The package is CLI/systemd glue only, so there is nowhere natural
+for shared constants or config introspection.
+
+** TODO Documentation falsified by the root -> airflow-user migration
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/airflow
+:FOUND: 2026-09-11
+:END:
+
+All still describe the root-based installation:
+
+- =README.org= --- the "4 systemd Units and DB Init" section.
+- =py3/panels/bisos.airflow/serverSetup/_nodeBase_/fullUsagePanel-en.org=.
+- =AI-Usage.org= --- describes the unit templates with no mention of
+  =User=airflow= or =EnvironmentFile=. *Also still untracked in git* (=??=);
+  never committed.
+- =AI-DevStatus.org= --- still template placeholders for Architecture, What
+  Works, What Is Untested, Key Design Decisions.
+
+Pre-existing and separate: most Blee-panel content beyond =serverSetup=
+(Postgres maintenance, monitoring/alerting, multi-user management, a
+=dynamic_remote_orchestrator= DAG) describes scope that does not exist in
+code. Do not cite those panels as evidence of implemented behaviour.
+
+* Host-Level Loose Ends
+
+** TODO Backup of the removed Airflow installation still present
+:PROPERTIES:
+:REPO: host
+:FOUND: 2026-09-10
+:END:
+
+=/root/airflow-removed-2026-09-10/= (892K) holds =cbm-leaf/= and
+=airflow-home/= (the old =/root/airflow=, including =airflow.cfg= and
+=simple_auth_manager_passwords.json.generated=). Moved rather than deleted
+so the removal stayed reversible. Delete once the new installation is
+trusted.
+
+** TODO CBM leaf not restored
+:PROPERTIES:
+:REPO: host
+:FOUND: 2026-09-11
+:END:
+
+The leaf =/bisos/platform/sys/cbm/collective/hereWeb/airflow/= (containing
+=cbmProc.spcs= -> =cbmProc-airflow.spcs=, plus =.control= and =.status=) was
+moved aside and never recreated. =cbs_materialize= does not need it --- its
+body is =cbs_sbom= -> =cbs_assemble= -> =sysdUnitsProc ensure all= --- but
+CBM-level verbs (=cbm_status=, =cbm_enable=, ...) do.
+
+Asymmetry noticed while investigating: =nginx='s leaf has =cbmProc.spcs= as
+a *real 524-byte executable*, whereas airflow's was a *symlink* into the
+repo. Airflow's leaf may have been made by hand, which would explain why no
+CBS-level command recreates it.
+
+** TODO Unintended artifact: =/bisos/platform/sys/cbm/airflow-cbs.pcs=
+:PROPERTIES:
+:REPO: host
+:FOUND: 2026-09-11
+:END:
+
+Created by =airflow-cbs.pcs -i cbmSymlinkToThisCbs enable= while trying to
+restore the CBM leaf. It is a *CBS-level* registration (flat symlink in
+=sys/cbm/=), a different mechanism from the CBM leaf. There is precedent
+(=facter-cbs-is-np-sysd.cs= is registered the same way), but it was not part
+of the original airflow setup. Keep or remove --- undecided.
+
+** INFO Orphaned transitive dependencies left in =bisos3=
+:PROPERTIES:
+:REPO: host
+:END:
+
+Airflow's dependency tree (=a2wsgi=, =asgiref=, =sqlalchemy=, ~150 packages)
+remains installed in =/bisos/venv/py3/bisos3= after the 8 airflow
+distributions were removed. Deliberate: other =bisos3= packages may use some
+of them, and orphaned libraries are harmless while a missing one is not.
+
+* Captured Knowledge
+
+** INFO Airflow 3 splits across distributions --- =pip uninstall apache-airflow= is not enough
+
+=pip uninstall apache-airflow= leaves a *fully working* Airflow.
+=apache-airflow= is an umbrella shim; the =airflow/= package and the
+=airflow= console script come from *=apache-airflow-core=*, with
+=apache-airflow-task-sdk= and the =apache-airflow-providers-*= packages
+alongside.
+
+Observed: uninstalling the umbrella reported success, and =airflow version=
+still printed =3.3.1=.
+
+Removing Airflow from a venv means removing all of: =apache-airflow=,
+=apache-airflow-core=, =apache-airflow-task-sdk=, and every
+=apache-airflow-providers-*=.
+
+Why it mattered: =whichBinPath()= resolves by PATH order. A surviving
+=bisos3= copy at PATH position 11 would have beaten the intended =asc= venv
+at position 18, and the systemd units would have been baked with the old
+venv path while appearing correctly migrated.
+
+* Process Design --- Captured, Not Yet Implemented
+
+This section records the design discussion for =AI-Outputs.org= itself, so
+it can be implemented later rather than re-derived.
+
+** Decided
+
+- *Central, not distributed.* One ledger that *is* the record. An "inbox +
+  dispatch" model was considered and rejected (capture centrally, then move
+  each item into its owning repo's =AI-WorkPlan.org=): it would fragment the
+  cross-cutting view, make "what is outstanding across BISOS?" unanswerable
+  from one place, and degrade the central file into a transient buffer.
+- *Lives in =mother/=, symlinked next to =CLAUDE.md=*, exactly like
+  =AI-WORKFLOW.org= --- a pattern already proven across 37 projects.
+- *Org TODO lifecycle with archiving*, so =/bx-done= and =/bx-archive= apply
+  uniformly and DONE items leave the live file.
+- *=:REPO:= property per entry*, because these items are found in one repo
+  and fixed in another.
+- *No locking.* In practice one Claude runs at a time on a machine;
+  designing for contention that does not occur is the wrong tradeoff.
+
+** Open
+
+- *Destination*: a dedicated =aiActivityOutputs= repo/directory rather than
+  =mother/=. =mother/= is an invariant, read-only-from-the-project-side
+  templates area; making it a high-churn shared *write* target is a
+  different access pattern, and it means findings from any project produce
+  commits in its repo. A separate repo separates those concerns while
+  keeping centrality. *=mother/= is the interim home only.*
+- *In the import chain or not*: whether =CLAUDE.md= should =@=-import it.
+  Where it lives and whether it is auto-loaded are separable decisions.
+  Auto-loading is what gives =WORKAROUND= entries their value; the cost is
+  that every project carries the full list every session.
+- *Growth*: the open set drains only as items are actually fixed, and
+  found-rate tends to exceed fix-rate (13 items came from a single session).
+  The =WORKAROUND= vs =TODO= split is deliberately the seam to cut along if
+  context pressure ever bites --- =WORKAROUND= entries earn their broadcast
+  cost, repo-local =TODO= backlog does not.
+- *=/bx-ai-outputs= command*: to be written. Should capture at the moment of
+  discovery, when context is richest. Probably wants a read/list mode too,
+  so the ledger stays reachable even if it is not auto-loaded.
+- *Dangling symlinks*: wherever the destination repo is not cloned the
+  symlink breaks. =AI-WORKFLOW.org= already has this property via
+  its repo, so it is not new --- but it is one more required repo.
+
+** Work Needed in =bisos.aiActivity=
+
+- Install the =AI-Outputs.org= symlink at =initiate= time, and decide
+  whether =initiateSub= inherits it as it does =.claude/=.
+- A =refresh=-style path for the 37 already-initiated projects, which will
+  not pick it up retroactively.
+- Ship the =/bx-ai-outputs= command in =_claude/commands/=.
+- Document the keyword vocabulary (=TODO= / =WORKAROUND= / =INFO=) and the
+  =:REPO:= convention in =AI-WORKFLOW.org=.
+
+# Local Variables:
+# eval: (setq-local toc-org-max-depth 4)
+# eval: (setq-local org-log-done 'time)
+# End:
