@@ -14,10 +14,11 @@ It lives in =mother/= and is symlinked next to =CLAUDE.md= in each
 aiActivity base, the same way =AI-WORKFLOW.org= is. One file, many projects,
 edits visible everywhere immediately.
 
-This is the *first* instance of this file. The process around it is captured
-but not yet implemented --- see [[Process Design --- Captured, Not Yet
-Implemented]] at the end for the design discussion, the open decisions, and
-the work needed in =bisos.aiActivity=.
+This is the *first* instance of this file. The mechanics (symlink chain,
+keyword vocabulary, =:REPO:= convention, non-import into =CLAUDE.md=) are
+documented in =AI-WORKFLOW.org='s own "AI-Outputs.org" section. The design
+discussion that led there, and what was actually built, are recorded in
+=bisos.aiActivity='s =AI-WorkPlan.org=, Stage 12 TODO 12.1 AI Results.
 
 ** Keywords
 
@@ -38,9 +39,10 @@ without it dispatch becomes guesswork once the context is gone.
 
 ** Provenance
 
-Items below were found 2026-09-10 / 2026-09-11 while migrating this host's
-Airflow from running as root to running as a dedicated =airflow= user, in
-=bisos-pip/airflow=.
+The initial batch below was found 2026-09-10 / 2026-09-11 while migrating
+this host's Airflow from running as root to running as a dedicated
+=airflow= user, in =bisos-pip/airflow=. Later entries carry their own
+=:FOUND:= date and are not part of that batch.
 
 * Defects --- BISOS Framework Packages
 
@@ -314,61 +316,6 @@ Why it mattered: =whichBinPath()= resolves by PATH order. A surviving
 =bisos3= copy at PATH position 11 would have beaten the intended =asc= venv
 at position 18, and the systemd units would have been baked with the old
 venv path while appearing correctly migrated.
-
-* Process Design --- Captured, Not Yet Implemented
-
-This section records the design discussion for =AI-Outputs.org= itself, so
-it can be implemented later rather than re-derived.
-
-** Decided
-
-- *Central, not distributed.* One ledger that *is* the record. An "inbox +
-  dispatch" model was considered and rejected (capture centrally, then move
-  each item into its owning repo's =AI-WorkPlan.org=): it would fragment the
-  cross-cutting view, make "what is outstanding across BISOS?" unanswerable
-  from one place, and degrade the central file into a transient buffer.
-- *Lives in =mother/=, symlinked next to =CLAUDE.md=*, exactly like
-  =AI-WORKFLOW.org= --- a pattern already proven across 37 projects.
-- *Org TODO lifecycle with archiving*, so =/bx-done= and =/bx-archive= apply
-  uniformly and DONE items leave the live file.
-- *=:REPO:= property per entry*, because these items are found in one repo
-  and fixed in another.
-- *No locking.* In practice one Claude runs at a time on a machine;
-  designing for contention that does not occur is the wrong tradeoff.
-
-** Open
-
-- *Destination*: a dedicated =aiActivityOutputs= repo/directory rather than
-  =mother/=. =mother/= is an invariant, read-only-from-the-project-side
-  templates area; making it a high-churn shared *write* target is a
-  different access pattern, and it means findings from any project produce
-  commits in its repo. A separate repo separates those concerns while
-  keeping centrality. *=mother/= is the interim home only.*
-- *In the import chain or not*: whether =CLAUDE.md= should =@=-import it.
-  Where it lives and whether it is auto-loaded are separable decisions.
-  Auto-loading is what gives =WORKAROUND= entries their value; the cost is
-  that every project carries the full list every session.
-- *Growth*: the open set drains only as items are actually fixed, and
-  found-rate tends to exceed fix-rate (13 items came from a single session).
-  The =WORKAROUND= vs =TODO= split is deliberately the seam to cut along if
-  context pressure ever bites --- =WORKAROUND= entries earn their broadcast
-  cost, repo-local =TODO= backlog does not.
-- *=/bx-ai-outputs= command*: to be written. Should capture at the moment of
-  discovery, when context is richest. Probably wants a read/list mode too,
-  so the ledger stays reachable even if it is not auto-loaded.
-- *Dangling symlinks*: wherever the destination repo is not cloned the
-  symlink breaks. =AI-WORKFLOW.org= already has this property via
-  its repo, so it is not new --- but it is one more required repo.
-
-** Work Needed in =bisos.aiActivity=
-
-- Install the =AI-Outputs.org= symlink at =initiate= time, and decide
-  whether =initiateSub= inherits it as it does =.claude/=.
-- A =refresh=-style path for the 37 already-initiated projects, which will
-  not pick it up retroactively.
-- Ship the =/bx-ai-outputs= command in =_claude/commands/=.
-- Document the keyword vocabulary (=TODO= / =WORKAROUND= / =INFO=) and the
-  =:REPO:= convention in =AI-WORKFLOW.org=.
 
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
