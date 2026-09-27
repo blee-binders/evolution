@@ -14,12 +14,6 @@ It lives in =mother/= and is symlinked next to =CLAUDE.md= in each
 aiActivity base, the same way =AI-WORKFLOW.org= is. One file, many projects,
 edits visible everywhere immediately.
 
-This is the *first* instance of this file. The mechanics (symlink chain,
-keyword vocabulary, =:REPO:= convention, non-import into =CLAUDE.md=) are
-documented in =AI-WORKFLOW.org='s own "AI-Outputs.org" section. The design
-discussion that led there, and what was actually built, are recorded in
-=bisos.aiActivity='s =AI-WorkPlan.org=, Stage 12 TODO 12.1 AI Results.
-
 ** Keywords
 
 Entries use the not-done states declared in =#+TODO:= above:
