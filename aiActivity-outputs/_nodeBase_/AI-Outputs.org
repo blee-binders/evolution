@@ -175,7 +175,6 @@ command and was never exercised --- likely the same shape of bug.
   documentation of the re-run contract. Currently discoverable only by
   reading =sbom_csu.py=.
 
-<<<<<<< Updated upstream
 * Defects and Debt --- =bisos.airflow=
 
 ** DONE Stale copies in =/bisos/asc/web/bin/= shadow the package on PATH
@@ -307,8 +306,6 @@ code. Do not cite those panels as evidence of implemented behaviour.
 - *Action*: open each file in Blee, run "Update Buf Dblocks"
   (=org-dblock-update-buffer-bx=), save, commit.
 
-=======
->>>>>>> Stashed changes
 * Host-Level Loose Ends
 
 ** TODO Backup of the removed Airflow installation still present
