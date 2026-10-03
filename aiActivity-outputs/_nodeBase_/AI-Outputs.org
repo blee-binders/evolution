@@ -4,6 +4,39 @@
 #+TAGS: me ai aiAndMe
 #+TODO: TODO WORKAROUND INFO | DONE
 
+####+BEGIN: blee:bxPanel:topPanelControls
+*  [[elisp:(org-cycle)][|#Control|]] :: [[elisp:(blee:bnsm:menu-back)][Back]] [[elisp:(toggle-read-only)][read/wr]] | [[elisp:(show-all)][Show-All]]  [[elisp:(org-shifttab)][Overview]]  [[elisp:(progn (org-shifttab) (org-content))][Content]] | [[elisp:(delete-other-windows)][(1)]] | [[elisp:(progn (save-buffer) (kill-buffer))][S&Q]] [[elisp:(save-buffer)][Save]] [[elisp:(kill-buffer)][Quit]] [[elisp:(bury-buffer)][Bury]] [[elisp:(magit)][Magit]] [[elisp:(call-interactively 'b:rg:panels/all)][rg:panels/all]]  [[elisp:(org-cycle)][| ]]
+**  RipGrep:: [[elisp:(rg-menu)][rg-menu]] ||
+**  [[elisp:(bap:magit:bisos:current-bpo-repos/visit)][BPO-Repos-Magit]] ||
+**  [[elisp:(blee:buf:re-major-mode)][Re-Major-Mode]] ||  [[elisp:(org-dblock-update-buffer-bx)][Update Buf Dblocks]] || [[elisp:(org-dblock-bx-blank-buffer)][Blank Buf Dblocks]] || [[elisp:(bx:panel:variablesShow)][bx:panel:variablesShow]]
+**  [[elisp:(blee:menu-sel:comeega:maintenance:popupMenu)][||Maintenance]]
+**  This File :: *= //bisos/panels/bisos-core/aiActivity-outputs/_nodeBase_/fullUsagePanel-en.org =*
+* /file-truename:/  /bisos/git/auth/bxRepos/blee-binders/evolution/aiActivity-outputs/_nodeBase_/AI-Outputs.org
+*  [[elisp:(org-cycle)][|#Select|]]  :: (Results: [[elisp:(blee:bnsm:results-here)][Here]] | [[elisp:(blee:bnsm:results-split-below)][Below]] | [[elisp:(blee:bnsm:results-split-right)][Right]] | [[elisp:(blee:bnsm:results-other)][Other]] | [[elisp:(blee:bnsm:results-popup)][Popup]]) (Select:  [[elisp:(lsip-local-run-command "lpCurrentsAdmin.sh -i currentsGetThenShow")][Show Currents]]  [[elisp:(lsip-local-run-command "lpCurrentsAdmin.sh")][lpCurrentsAdmin.sh]] ) [[elisp:(org-cycle)][| ]]
+**  #See:  (Window: [[elisp:(blee:bnsm:results-window-show)][?]] | [[elisp:(blee:bnsm:results-window-set 0)][0]] | [[elisp:(blee:bnsm:results-window-set 1)][1]] | [[elisp:(blee:bnsm:results-window-set 2)][2]] | [[elisp:(blee:bnsm:results-window-set 3)][3]] ) || [[elisp:(lsip-local-run-command-here "echo pushd dest")][echo pushd dir]] || [[elisp:(lsip-local-run-command-here "lsf")][lsf]] || [[elisp:(lsip-local-run-command-here "pwd")][pwd]] |
+**  [[elisp:(org-cycle)][|#Destinations|]] :: [[Evolution]] | [[Maintainers]]  [[elisp:(org-cycle)][| ]]
+**  #See:  [[elisp:(bx:bnsm:top:panel-blee)][Blee]] | [[elisp:(bx:bnsm:top:panel-listOfDocs)][All Docs]]  E|
+####+END
+####+BEGIN: blee:bxPanel:title :panelType "=bxPanel=" :title "auto"
+* [[elisp:(show-all)][(>]] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   [[img-link:file:/bisos/blee/env/images/privateRedHand-50.jpeg][http://www.freeprotocols.org]]_ _   Unknown--~Node:: panels/bisos-core -- aiActivity-outputs~   [[img-link:file:/bisos/blee/env/images/privateBlackLock-50.png][http://www.by-star.net]]
+* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  [[elisp:(org-shifttab)][<)]] E|
+####+END:
+####+BEGIN: blee:bxPanel:terseTreeNavigator :panelsList "bxPanel"
+* [[elisp:(show-all)][(>]] [[elisp:(describe-function 'org-dblock-write:blee:bxPanel:terseTreeNavigator)][dbf]]
+* +
+*                                        *━━━━━━━━━━━━━━━━━━━━━━━━*
+*   *Siblings*   :: [[elisp:(dired "//bisos/panels/bisos-core/.aiActivity.cs")][ ~.aiActivity.cs~ ]] *|* [[elisp:(dired "//bisos/panels/bisos-core/.claude")][ ~.claude~ ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/AI/_nodeBase_")][ =AI= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/BashIcmFwrk/_nodeBase_")][ =BashIcmFwrk= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/PALS/_nodeBase_")][ =PALS= ]] *|*
+*   *Siblings*   :: [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/PyCsFwrk/_nodeBase_")][ =PyCsFwrk= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/adoptedComponents/_nodeBase_")][ =adoptedComponents= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/aiActivity-outputs/_nodeBase_")][ = /<aiActivity-outputs>/ = ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/asc/_nodeBase_")][ = /<asc>/ = ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/baseDirs/_nodeBase_")][ =baseDirs= ]] *|*
+*   *Siblings*   :: [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/bisos-dev/_nodeBase_")][ = /<bisos-dev>/ = ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/bisos-evolution/_nodeBase_")][ = /<bisos-evolution>/ = ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/bisos-pip/_nodeBase_")][ =bisos-pip= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/bisosAccts/_nodeBase_")][ =bisosAccts= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/bootstrap/_nodeBase_")][ =bootstrap= ]] *|*
+*   *Siblings*   :: [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/bxeAndBxo/_nodeBase_")][ =bxeAndBxo= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/capability/_nodeBase_")][ =capability= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/disks/_nodeBase_")][ =disks= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/gitlabBpo/_nodeBase_")][ =gitlabBpo= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/groupedComponents/_nodeBase_")][ =groupedComponents= ]] *|*
+*   *Siblings*   :: [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/maintainInterim/_nodeBase_")][ =maintainInterim= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/modelAndTerminology/_nodeBase_")][ =modelAndTerminology= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/platform/_nodeBase_")][ =platform= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/projs/_nodeBase_")][ =projs= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/rawBisos/_nodeBase_")][ = /<rawBisos>/ = ]] *|*
+*   *Siblings*   :: [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/registrations/_nodeBase_")][ =registrations= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/sbom/_nodeBase_")][ =sbom= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/sites/_nodeBase_")][ =sites= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/sync/_nodeBase_")][ =sync= ]] *|* [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/sysChar/_nodeBase_")][ =sysChar= ]] *|*
+*   *Siblings*   :: [[elisp:(blee:bnsm:panel-goto "//bisos/panels/bisos-core/virtualization/_nodeBase_")][ =virtualization= ]] *|*
+*   /Ancestors/  :: [[elisp:(blee:bnsm:panel-goto "/bisos/panels/bisos-core/_nodeBase_")][ =bisos-core= ]] *|* [[elisp:(blee:bnsm:panel-goto "/bisos/panels/_nodeBase_")][ = /<panels>/ = ]] *|* [[elisp:(dired "/bisos")][ ~bisos~ ]] *|* [[elisp:(dired "//")][ ~~ ]] *|*
+*                                   _━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━_                          [[elisp:(org-shifttab)][<)]] E|
+####+END
+
 * What This File Is
 
 A *central, cross-project ledger* of action items, defects and findings that
@@ -18,14 +51,14 @@ edits visible everywhere immediately.
 
 Entries use the not-done states declared in =#+TODO:= above:
 
-| Keyword      | Meaning                                                     |
-|--------------+-------------------------------------------------------------|
-| =TODO=       | Needs fixing. No workaround known, or none needed.          |
-| =WORKAROUND= | Broken, *and* a workaround is documented and in use. Still  |
-|              | needs an upstream fix. Highest broadcast value --- these    |
-|              | save the next Claude from rediscovering the breakage.       |
-| =INFO=       | Captured knowledge. No action required.                     |
-| =DONE=       | Resolved. Archivable via =/bx-archive=.                     |
+| Keyword    | Meaning                                                  |
+|------------+----------------------------------------------------------|
+| =TODO=       | Needs fixing. No workaround known, or none needed.       |
+| =WORKAROUND= | Broken, *and* a workaround is documented and in use. Still |
+|            | needs an upstream fix. Highest broadcast value --- these |
+|            | save the next Claude from rediscovering the breakage.    |
+| =INFO=       | Captured knowledge. No action required.                  |
+| =DONE=       | Resolved. Archivable via =/bx-archive=.                    |
 
 Each actionable entry carries a =:REPO:= property naming where the fix
 belongs --- these items are found in one repo and fixed in another, so
@@ -142,6 +175,7 @@ command and was never exercised --- likely the same shape of bug.
   documentation of the re-run contract. Currently discoverable only by
   reading =sbom_csu.py=.
 
+<<<<<<< Updated upstream
 * Defects and Debt --- =bisos.airflow=
 
 ** DONE Stale copies in =/bisos/asc/web/bin/= shadow the package on PATH
@@ -273,6 +307,8 @@ code. Do not cite those panels as evidence of implemented behaviour.
 - *Action*: open each file in Blee, run "Update Buf Dblocks"
   (=org-dblock-update-buffer-bx=), save, commit.
 
+=======
+>>>>>>> Stashed changes
 * Host-Level Loose Ends
 
 ** TODO Backup of the removed Airflow installation still present
