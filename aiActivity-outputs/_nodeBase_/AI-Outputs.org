@@ -175,6 +175,61 @@ command and was never exercised --- likely the same shape of bug.
   documentation of the re-run contract. Currently discoverable only by
   reading =sbom_csu.py=.
 
+** WORKAROUND =cba_seed.setup(sbom=...)= takes only one sbom
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/capability
+:FOUND: 2026-10-15
+:END:
+
+- *Where*: =bisos/capability/cba_seed.py= (=sbom: str | None=), run by
+  =cbs_sbom= in =cba_csu.py:211-215= as =f"{sbom} -i sbom_fullUpdate"=.
+- *What*: a CBS can name one sbom. A capability with a service sbom and a
+  separate usage sbom (=bisos.kafka=: =kafka-sbom.pcs= + =kafkaUsage-sbom.pcs=,
+  WorkPlan 2.7 there) cannot list both in its CBS. The service sbom must not pull
+  in the usage sbom, because materializing only the server is a supported case.
+- *Wanted*: =sbom= accepts a list (str stays valid), run in order, stopping on
+  the first failure.
+
+*Workaround*: a package-less bundle sbom, =<name>Cbs-sbom.pcs=, whose =sbomsList=
+names both, and the CBS points at it (=bisos.kafka='s =kafkaCbs-sbom.pcs=).
+Retire it once the list form lands. Recorded in the =cbm-authorship= skill.
+Not used: packing =a -i sbom_fullUpdate && b= into the string (works only
+because it is pasted into bash).
+
+** TODO =sbomSpecs_fullUpdate= carries on after a failed sub-sbom
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/sbom
+:FOUND: 2026-10-15
+:END:
+
+- *Where*: =bisos/sbom/sbom_csu.py=, =sbomSpecs_fullUpdate.cmnd()= (around line 1096):
+  a problematic =sbomSpec_process= gives =problem_usageError= and =continue=; the
+  Cmnd then returns success.
+- *Impact*: a group sbom (=sbomsList=) runs later sub-sboms after an earlier one
+  failed, and reports success. Compounded by =g_csMain= exiting 0 for a failed Cmnd,
+  so =sbomSpec_process= sees rc 0 from the sub-sbom anyway.
+- *Wanted*: stop on the first failed sub-sbom (or an option to), and return a bad
+  outcome.
+- *Found reading the code* while adding =bisos.kafka='s =kafkaCbs-sbom.pcs=; not
+  observed in a run.
+
+** TODO CBM-package helpers are copied into every package
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/capability
+:FOUND: 2026-10-15
+:END:
+
+- *What*: every CBM package for an open-source program (=bisos.kafka=, =bisos.prometheus=,
+  =bisos.grafana=) carries its own copy of the same code: =tarballSetupScript()= (pinned,
+  per-architecture checksummed tarball install), =kvDrift= / =textDrift= / =unitDrift=
+  in =<name>Info.py=, and the =_exists= / =_report*Drift= / =_reportLink= helpers of
+  =<name>Admin.cs -i driftCheck=; the bundle sbom =<name>Cbs-sbom.pcs= is the same file renamed.
+- *Impact*: a fix in one copy does not reach the others. Kept identical by convention only
+  (the =cbm-package-authorship= skill says to copy them verbatim).
+- *Wanted*: an additive module (e.g. =bisos.capability.cbaPkgLib=) that the packages import;
+  the non-invasive rule for the =cba_*= files still holds. The bundle sbom goes away with the
+  =cba_seed= sbom-list item above.
+
 * Defects and Debt --- =bisos.airflow=
 
 ** TODO Blee dblocks not regenerated after the 2026-10-01 panel edits
@@ -227,6 +282,18 @@ distributions were removed. Deliberate: other =bisos3= packages may use some
 of them, and orphaned libraries are harmless while a missing one is not.
 
 * Captured Knowledge
+
+** INFO Grafana downloads "preinstalled" plugins from grafana.com at every start
+:PROPERTIES:
+:FOUND: 2026-10-15
+:END:
+
+Grafana 13 (OSS tarball), on its first start, fetched and installed five app plugins
+(advisor, exploretraces, lokiexplore, metricsdrilldown, pyroscope) from grafana.com,
+unpinned and unverified, with =preinstall_auto_update = true= by default. =bisos.grafana='s
+generated =grafana.ini= sets =[plugins] preinstall_disabled = true= and
+=preinstall_auto_update = false=. General lesson, recorded in the =cbm-package-authorship=
+skill: check any upstream program for downloads, update checks and usage reporting at start.
 
 ** INFO Airflow 3 splits across distributions --- =pip uninstall apache-airflow= is not enough
 
