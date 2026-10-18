@@ -213,6 +213,27 @@ because it is pasted into bash).
 - *Found reading the code* while adding =bisos.kafka='s =kafkaCbs-sbom.pcs=; not
   observed in a run.
 
+** WORKAROUND bisos.sbom's pip and pipx steps ignore versions and never upgrade
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/sbom
+:FOUND: 2026-10-16
+:END:
+
+- *Where*: =bisos/sbom/sbom_csu.py=, =pipPkgs_update= and =pipxPkgs_update=: they run
+  =pip install {name}= / =pipx install {name}=, and skip a package =pip*Pkg_isInstalled= reports.
+- *What*: =pkgsSeed.pipPkg(name, ver=...)='s =ver= is never used, and an installed package is never
+  upgraded. A pin is therefore never applied, and a version bump never reaches a host.
+  bisos.airflow's =pp("apache-airflow", ver=airflowInfo.pipVersionSpec)= is affected.
+- *Also*: =PkgsSeedInfo.__init__= assigns =self._pipxPkgsList = pipPkgsList= (=pkgsSeed.py:289=);
+  harmless today because =setup()= sets the attribute again, but wrong.
+- *Wanted*: install =name==ver= (or =name<spec>=) when =ver= is set, and re-run pip when the installed
+  version does not satisfy it.
+
+*Workaround*: func-bearing APT pseudo-packages that run pip / pipx themselves with exact pins (pip is a
+no-op when satisfied, so they stay idempotent). Used by =bisos.pypiserver= (=pipSetupScript=,
+=browserVenvSetupScript=, =twineSetupScript= in =pypiserverInfo.py=); recorded in the
+=cbm-package-authorship= skill.
+
 ** TODO CBM-package helpers are copied into every package
 :PROPERTIES:
 :REPO: /bisos/git/bxRepos/bisos-pip/capability
@@ -229,6 +250,91 @@ because it is pasted into bash).
 - *Wanted*: an additive module (e.g. =bisos.capability.cbaPkgLib=) that the packages import;
   the non-invasive rule for the =cba_*= files still holds. The bundle sbom goes away with the
   =cba_seed= sbom-list item above.
+
+** DONE The reactProc seed works only from the Gatsby directory, and never shows a planted file's examples
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/webCap
+:FOUND: 2026-10-17
+:END:
+
+- *Where*: =bisos/webCap/reactProc_csu.py=, =reactProc_seedInfo.py=; run by =reactProc-seed.cs=.
+- *What*, two defects:
+  1. =whichReactFramework_()= looks for =gatsby-config.js= in the *current directory*, the examples
+     print bare =gatsby develop= / =gatsby build= meant for it, and =examples_seed= asserts that the
+     framework given at =setup()= equals the one detected. A =reactProc.spcs= that is not in the
+     Gatsby directory fails that assert. The common Gatsby-site structure (gatsby-site activity,
+     platform.here WorkPlan 2.1) puts the Gatsby files in =site/= and the spcs, now =siteProc.spcs=,
+     at the top.
+  2. =reactProc_seedInfo.setup(examplesFuncsList=...)= passes the list to =csCmndsList_seedInfo=
+     (as =csCmndsList=), but the examples run (=seedsLib.plantedCsuExamplesRun=) reads
+     =addCmnds_seedInfo= or a planted =examples_csu()=. So a planted file's =examples_spcs= is never
+     shown --- the starter's and csPlayer-webUi's "Seed Extensions" chapters never appeared.
+- *Workaround* (platform.here's =siteProc.spcs=): make =sys.argv[0]= absolute and =os.chdir= into
+  =site/= before the seed runs; define =examples_csu()= (not =examplesFuncsList=), with the commands
+  written as run from the top.
+- *Wanted*: a =siteDir= parameter on =reactProc_seedInfo.setup()= that the detection and the printed
+  commands use; and =examplesFuncsList= reaching the examples run.
+- *Fixed* (2026-10-18, in =bisos.webCap=, editable in bisos3): =reactProc_seedInfo.setup(siteDir=...)=,
+  used by =whichReactFramework_()= and by the printed build commands (=(cd <siteDir> && ...)=);
+  =examplesFuncsList= now goes to =addCmnds_seedInfo=, so a planted file's examples show (the Gatsby
+  starter's "Seed Extensions" chapter appears). Without =siteDir= nothing changes. Astro sites use the
+  new =astroProc= seed instead (=bisos.webCap= =astroProc_*=, =contentTree_csu=), which works from the
+  planted file's directory; platform.here's =siteProc.spcs= workaround is gone (now =astroProc.spcs=).
+
+* AI-Activity Templates and Skills
+
+** INFO One shared set of skills, in =mother/_skills/= --- by practice, not by engine change
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos/defaults (ai-templates)
+:FOUND: 2026-10-17
+:END:
+
+- *Decision* (user, 2026-10-17): all BISOS skills are relevant to BISOS work, so every activity
+  sees all of them. The 19 skills moved into =mother/_skills/= (17 from =bisos-pip/_skills/=,
+  =authoring-skills= from =aiActivity/=, =sbom-authoring= from =sbom+cap/=); each of those three
+  activities now has =_skills -> ../mother/_skills=. Other activities have no =_skills= and get
+  mother's through the engine's fallback.
+- *Why*: the work crosses activities (a pip package, then a BXO, then the templates), and the skills
+  lean on each other (=cbm-package-authorship= on =cbm-authorship=, =readme-authorship=,
+  =banna-lookup=); split by activity, those chains broke. An unused skill costs one line of the
+  startup listing; what matters is that descriptions do not overlap.
+- *Engine unchanged*: =aiActivity.cs= still prefers a real =<activity>/_skills/= over mother's. So
+  *never give an activity a real =_skills/= directory* --- it would hide the shared set from that
+  activity's projects. New skills go in =mother/_skills/<name>/=.
+- *Installed projects*: the 25 =.claude/skills= links found point at =bisos-pip/_skills= or
+  =aiActivity/_skills=; through the new symlinks they see all 19, with nothing to redo.
+- Resolves the engine AI-DevStatus Known Gap "Skill provisioning ≠ purpose". Recorded in the
+  =authoring-skills= skill, =aiActivity/AI-Activity.org= and the engine README (Skills).
+- First activity created on this rule: =gatsby-site= (2026-10-17), renamed =astro-site= on 2026-10-18
+  --- its knowledge in =astro-site/AI-Activity.org=, its procedure in
+  =mother/_skills/astro-site-authorship/=, and no =_skills= of its own.
+
+** TODO =refresh= does not add a missing =.claude/skills= link
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/aiActivity
+:FOUND: 2026-10-17
+:END:
+
+- *What*: a repo initiated when neither its activity nor =mother/= had skills got no
+  =.claude/skills= link (=initiate= creates it only if the source exists). =refresh= re-copies
+  =CLAUDE.md= and backfills =AI-Outputs.org= but not this link, so such repos never see the shared
+  set.
+- *Handled by hand* (2026-10-17): =ln -s /bisos/apps/defaults/ai-templates/mother/_skills
+  .claude/skills= in =bxObjects/bro_rawBisos=, =bxObjects/bro_dockerfiles=, =bisos/defaults=,
+  =blee-binders/bisos-core=, =bisos/blee/bin= (each tracks =.claude/=: the link is theirs to commit).
+- *Wanted*: =refresh= backfills a missing =.claude/skills= (and =commands=, =settings.json=) link,
+  as it does =AI-Outputs.org=.
+
+** TODO The =aiCommandsSkillsTrees= figures show the skills' old homes
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos/defaults (ai-templates/_nonTemplate_/images)
+:FOUND: 2026-10-17
+:END:
+
+- *What*: =aiGeneralTree= and =aiEcosystemTree= draw each skill under the activity it lived in
+  (=bisos-pip/_skills/= ...). Since the move they are all in =mother/_skills/=.
+- *Wanted*: update the =.pcs= sources and re-render; the PNG copies in the engine repo
+  (=py3/images/fromTemplates/=) follow.
 
 * Defects and Debt --- =bisos.airflow=
 
@@ -282,6 +388,39 @@ distributions were removed. Deliberate: other =bisos3= packages may use some
 of them, and orphaned libraries are harmless while a missing one is not.
 
 * Captured Knowledge
+
+** INFO devpi-server 6.20.3 requires setuptools<=81 --- it cannot share a venv with setuptools 82+
+:PROPERTIES:
+:FOUND: 2026-10-16
+:END:
+
+devpi-server 6.20.3 declares =setuptools<=81= (and pyramid 2.1 =setuptools<82=; pkg_resources).
+=/bisos/venv/py3/asc= has setuptools 84.0.0, so installing devpi there would downgrade it.
+=bisos.devpi= therefore runs from =/bisos/venv/py3/isolated/devpiServer= (55 packages hash-pinned).
+A dry run of =pip install --report= shows such a downgrade before anything is installed.
+
+** INFO packages.gitlab.com: the index's Filename path is a 404; the path needs the Debian codename
+:PROPERTIES:
+:FOUND: 2026-10-16
+:END:
+
+In =https://packages.gitlab.com/gitlab/gitlab-ce/debian/dists/trixie/main/binary-amd64/Packages.gz=
+the =Filename= is =pool/main/g/gitlab-ce/gitlab-ce_<v>_amd64.deb=, which returns 404. The working path
+is =pool/trixie/main/g/gitlab-ce/...=; it redirects to a storage object named by the package's
+SHA-256 (a useful second check of the pin). =bisos.gitlab='s =gitlabInfo.debUrl= uses that form.
+
+** INFO pypi-browser 0.0.12 fails on Starlette 1.x, and nothing in its metadata says so
+:PROPERTIES:
+:FOUND: 2026-10-16
+:END:
+
+pypi-browser-webapp 0.0.12 (chriskuehl/pypi-browser, latest release 2024-06) calls Starlette's pre-1.0
+=TemplateResponse(name, context)=; on Starlette 1.x every page is a 500 (=TypeError: unhashable type:
+'dict'=). It declares =starlette= with no bound, so pip --- and a pip dry-run conflict check --- accept it
+into a venv that has Starlette 1.x (=/bisos/venv/py3/asc= has 1.6.0, Airflow's). Fix: upstream PR #15,
+unmerged. =bisos.pypiserver= therefore runs it from =/bisos/venv/py3/isolated/pypiBrowser= with Starlette
+0.52.1. General lesson, in the =cbm-package-authorship= skill: a dependency check only sees declared
+conflicts; start the program.
 
 ** INFO Grafana downloads "preinstalled" plugins from grafana.com at every start
 :PROPERTIES:
