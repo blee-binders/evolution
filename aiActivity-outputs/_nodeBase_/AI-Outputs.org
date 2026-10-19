@@ -281,6 +281,60 @@ no-op when satisfied, so they stay idempotent). Used by =bisos.pypiserver= (=pip
   new =astroProc= seed instead (=bisos.webCap= =astroProc_*=, =contentTree_csu=), which works from the
   planted file's directory; platform.here's =siteProc.spcs= workaround is gone (now =astroProc.spcs=).
 
+** DONE =dnsCap_ensureHostsDblock= creates only banna's =/etc/hosts= block, not the coming palsHere one
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/dnsCap (and bisos-pip/pals)
+:FOUND: 2026-10-18
+:END:
+
+- *Where*: =bisos/dnsCap/dnsCap_csu.py=, =dnsCap_ensureHostsDblock= (line ~301 hardcodes
+  =bannaCommand = 'bannaInfo.cs -i bannaForEtcHosts'=). =dnsCap_update= calls it first, then runs
+  =py-dblock.cs= over =/etc/hosts=; every =*-here-dns.pcs= is run with =-i dnsCap_update= from its
+  CBS's assemble.
+- *What*: the empty BEGIN/END block is created idempotently when absent --- but only banna's. The
+  coming PALS block (=palsHereInfo.cs -i palsForEtcHosts=, from =/bisos/var/palsHere/uri.list=,
+  127.0.55.x; libreHalaalFoundation/web/astro WorkPlan 2.1, triggered by each PALS's
+  =pals-here-dns.spcs=) would never be created, so its names would not resolve on a fresh host.
+- *Wanted* (decided by the user, 2026-10-18: in dnsCap, not a pals-side step):
+  =dnsCap_ensureHostsDblock= takes the block's command from a seedInfo field (e.g. a list of dblock
+  commands, defaulting to banna's), so =pals-here-dns.spcs= can ask for the palsHere block. Existing
+  =*-here-dns.pcs= files, which set nothing, keep getting banna's.
+- Correction (same day): this entry first said nothing creates the blank block; dnsCap does, for banna.
+- *Fixed* (2026-10-18, in =bisos.dnsCap=, editable in bisos3, not committed):
+  =CmndsControlInfo.hostsDblockCommands= (None: banna's only) and =preUpdateFuncs= (run first by
+  =dnsCap_update=); ensure and verify loop over the commands. bisos.pals's =pals-here-dns.spcs= names
+  banna's and palsHere's. Also fixed there: ensure's backup and update's, made in the same second, had
+  one name, so the original was overwritten --- ensure's is now =<file>.<date>.preEnsure=.
+
+** DONE A CBM leaf ran a symlinked CBS by its resolved path, losing where it is planted
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/capability
+:FOUND: 2026-10-19
+:END:
+
+- *Where*: =bisos/capability/cbmProc_seedInfo.py=, =resolveCbsSpec()=: =Path(cbsSpec).resolve()= (and
+  =Path(shutil.which(...)).resolve()=), although its header says an explicit path is used "as-is".
+- *What*: a spread-planted CBS that is a symlink (a PALS site's =cbm/pals-cbs.spcs= -> bisos.pals's
+  generic file) was run as the generic file, so it took its parameters from bisos.pals's =py3/bin/=
+  and found no PALS. Seen through =/bisos/platform/sys/cbm/pals/bro_rawBisosPals/libreHalaal/=.
+- *Fixed* (2026-10-19, editable in bisos3, not committed): =.absolute()= instead of =.resolve()= in both
+  forms. Leaves that point at real files behave as before.
+- Related, and NOT fixed: the run failed, yet the leaf's =cbmProc.status= logged "ran: cbs_materialize
+  ok" and the walk reported =failed=0= --- the PyCS main exits 0 when a Cmnd fails (as bisos.kafka found).
+
+** TODO =sysCbmManage= runs a bare =ftoBranchProc.spcs=, which depends on =.= being early on PATH
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/capability
+:FOUND: 2026-10-19
+:END:
+
+- *Where*: =bisos/capability/sysCbmManage_csu.py=, =cbmDispatch=: =ftoBranchProc.spcs -i
+  fto_forwardToLeaves= at =collective/hereWeb=, without =./=.
+- *What*: =/bisos/venv/py3/bisos3/bin/ftoBranchProc.spcs= also exists. On a host whose PATH has =.= first
+  (this one) the walk root's own file runs; otherwise the one in bisos3/bin would, with the wrong
+  =branchesOrdered=.
+- *Wanted*: =./ftoBranchProc.spcs=, as the new =pals= walk in the same function already uses.
+
 * AI-Activity Templates and Skills
 
 ** INFO One shared set of skills, in =mother/_skills/= --- by practice, not by engine change
