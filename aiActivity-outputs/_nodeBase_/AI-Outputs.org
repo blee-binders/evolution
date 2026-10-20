@@ -58,7 +58,7 @@ Entries use the not-done states declared in =#+TODO:= above:
 |            | needs an upstream fix. Highest broadcast value --- these |
 |            | save the next Claude from rediscovering the breakage.    |
 | =INFO=       | Captured knowledge. No action required.                  |
-| =DONE=       | Resolved. Archivable via =/bx-archive=.                    |
+| =DONE=       | Resolved. Archivable via =/bx-archive-update=.             |
 
 Each actionable entry carries a =:REPO:= property naming where the fix
 belongs --- these items are found in one repo and fixed in another, so
@@ -335,7 +335,94 @@ no-op when satisfied, so they stay idempotent). Used by =bisos.pypiserver= (=pip
   =branchesOrdered=.
 - *Wanted*: =./ftoBranchProc.spcs=, as the new =pals= walk in the same function already uses.
 
+** TODO libre-halaal.org.here's =astroProc.spcs= is still platform.here's, with a banna lookup
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bxObjects/bro_rawBisos/bro_rawBisosPals (bySmb/libreHalaalFoundation/web/astro)
+:FOUND: 2026-10-19
+:END:
+
+- *What*: its docstring says "platform.here" and "no content/tree yet", and it calls
+  =bannaPortNu("platform_dev")=. A PALS has no banna entry; the fqdn there is right only by accident of
+  nothing reading it.
+- *Impact*: the first PALS site is the one people copy (the second PALS site was copied from it and
+  carried the same lookup). =astro dev= on it would bind platform.here's dev port.
+- *Wanted*: =fqdn = "libre-halaal.org.here"=, no banna import, no =devPortNu= (optional; default 4321),
+  its own docstring --- as in the =bx-pals-web-site= skill, step 2.
+
+** TODO The starter's =content/README.org= example =contentTreeList tree= fails from the site directory
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-web/astro-starter-bystar
+:FOUND: 2026-10-19
+:END:
+
+- *What*: it says =../astroProc.spcs -i contentTreeList tree= shows the tree. Run from the site's
+  directory (where astroProc works), =contentTreeValidate tree= fails with "tree: not a directory"; the
+  path that works is =content/tree=, which is what =astro-site-authorship= uses.
+- *Wanted*: the README's example as =./astroProc.spcs -i contentTreeList content/tree= from the site's
+  directory, or the Cmnds taking a path relative to =siteBase= / =content/=.
+
+** WORKAROUND =argsparseBasedOnCsParams= cannot build a =store_true= flag on Python 3.13
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/b
+:FOUND: 2026-10-19
+:END:
+
+- *Where*: =bisos/b/cs/cs.py=, =argsparseBasedOnCsParams= (around lines 1316-1330). Both branches pass
+  =nargs = icmParam.parNargsGet()= (None unless set) to =parser.add_argument=, and the branch without a
+  short option also passes =metavar = 'ARG'=.
+- *What*: a param declared with =parAction='store_true'= fails at startup: =TypeError:
+  _StoreTrueAction.__init__() got an unexpected keyword argument 'nargs'=. argparse's flag actions take
+  neither =nargs= nor =metavar=. =cs/param.py= declares its own =force= and =docstring= params as
+  =store_true=; how they escape this was not checked.
+- *Impact*: no CS command can take a boolean flag. Found adding =--prune= to =aiActivityCmnds.cs=.
+- *Wanted*: build the keyword arguments by action (leave out =nargs= and =metavar= for =store_true=,
+  =store_false= and =count=).
+
+*Workaround*: make the choice its own verb (=cmndsSyncPrune=, in =aiActivityCmnds.cs=, which was
+retired 2026-10-20 with the copy-sync it served; the limitation stands), or a value-taking param. Retire the verb
+split if flags become possible; the verb is arguably clearer for a destructive action anyway.
+
 * AI-Activity Templates and Skills
+
+** INFO PALS sites: =pals-site= skill, and a banna-or-PALS choice in astro-site
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos/defaults (ai-templates)
+:FOUND: 2026-10-19
+:END:
+
+- *Why*: building a second PALS site, Claude knew only the banna path: =astro-site='s
+  =AI-Activity.org= and =astro-site-authorship= described banna only, =cbm-authorship= named the =pals=
+  realm and nothing else, and the bisos.pals README (the authority) is in no import chain. It proposed
+  banna registrations and a dev port, and read the =cbm/= of =pals-*= symlinks as empty.
+- *Done*: new =mother/_skills/pals-site/=; =astro-site/AI-Activity.org= gains the banna-or-PALS choice,
+  the two PALS-relevant sites and two pitfalls; =astro-site-authorship= asks banna or PALS in step 0,
+  marks steps 1 and 5 banna-only, and gains four pitfalls.
+- *Renamed* (user, 2026-10-19): =pals-site= -> =bx-pals-web-site= (=mother/_skills/bx-pals-web-site/=).
+
+** TODO A heterogeneous sub sees its ancestor's skills, not its own templates tree's
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/aiActivity
+:FOUND: 2026-10-19
+:END:
+
+- *What*: a project initiated from a fork's templates tree has =.claude/skills= pointing into that
+  tree. A subproject of it =initiateSub='d from the BISOS templates (=astro-site=) inherits =.claude/=
+  from its ancestor, so none of the skills its =AI-Activity.org= names (=astro-site-authorship=,
+  =bx-pals-web-site=, =cbm-authorship=, =banna-lookup=) are available there.
+- *Decided* (user, 2026-10-19): a heterogeneous sub carries its own =<sub>/.claude/skills= -> its
+  templates tree's =mother/_skills=, all of it (option A; a per-tree plugin was considered and not
+  needed). Written up in =mother/AI-WORKFLOW.org=, "Homogeneous and Heterogeneous AI-Activities".
+  Linked by hand for the sub where it was found.
+- *Verified* (2026-10-19, VS Code extension, session started at the base): the nested
+  =.claude/skills= does load, lazily, only after Read / Edit tool calls on files in the sub, never
+  through Bash, and not on the first Read. =/add-dir= is not available in VS Code.
+  Requirement (user): all of the sub tree's skills available. Rule, in =AI-WORKFLOW.org= and the
+  =bx-confirm0= / =bx-confirm-here= commands: read the sub's chain with the Read tool, and read every
+  =SKILL.md='s frontmatter as the guarantee until discovery lists them. No plugin needed.
+- *Still wanted*: =initiateSub= installs that link when it reports =HETEROGENEOUS= (and =refresh=
+  backfills it); the aiActivity README's Heterogeneous section says so. The BISOS tree's =bx-confirm0= /
+  =bx-confirm-here= gain the same reading step. Untested: a session started in the sub (loads at
+  startup?).
 
 ** INFO One shared set of skills, in =mother/_skills/= --- by practice, not by engine change
 :PROPERTIES:
@@ -379,7 +466,7 @@ no-op when satisfied, so they stay idempotent). Used by =bisos.pypiserver= (=pip
 - *Wanted*: =refresh= backfills a missing =.claude/skills= (and =commands=, =settings.json=) link,
   as it does =AI-Outputs.org=.
 
-** TODO The =aiCommandsSkillsTrees= figures show the skills' old homes
+** DONE The =aiCommandsSkillsTrees= figures show the skills' old homes
 :PROPERTIES:
 :REPO: /bisos/git/bxRepos/bisos/defaults (ai-templates/_nonTemplate_/images)
 :FOUND: 2026-10-17
@@ -389,6 +476,13 @@ no-op when satisfied, so they stay idempotent). Used by =bisos.pypiserver= (=pip
   (=bisos-pip/_skills/= ...). Since the move they are all in =mother/_skills/=.
 - *Wanted*: update the =.pcs= sources and re-render; the PNG copies in the engine repo
   (=py3/images/fromTemplates/=) follow.
+- *Fixed* (2026-10-19): both trees now show every skill in =mother/_skills/= (seen by every
+  activity), the commands as one set (BISOS primary, a fork's then kept in step by =aiActivityCmnds.cs=,
+  replaced 2026-10-20 by assembled bases),
+  and the skills the figure lacked (=bx-ai-commands-authorship=, =cbm-package-authorship=,
+  =astro-site-authorship=, =bx-pals-web-site=). =aiStartupWorkflow= was corrected in the same pass
+  (=mother/_skills/=, =_skills → mother=, the retired suspend/resume). Re-rendered in all formats;
+  the PNGs re-copied into the engine's =py3/images/fromTemplates/=. Uncommitted at the time.
 
 * Defects and Debt --- =bisos.airflow=
 
@@ -440,6 +534,17 @@ Airflow's dependency tree (=a2wsgi=, =asgiref=, =sqlalchemy=, ~150 packages)
 remains installed in =/bisos/venv/py3/bisos3= after the 8 airflow
 distributions were removed. Deliberate: other =bisos3= packages may use some
 of them, and orphaned libraries are harmless while a missing one is not.
+
+** TODO =pals-assemble.cs -i fullUpdate= alerts about a missing =currents/fp=
+:PROPERTIES:
+:REPO: unknown (bisos.b currents, or the bpo usageEnvs)
+:FOUND: 2026-10-19
+:END:
+
+- *What*: =ALERT: Missing /home/bystar/bpos/usageEnvs/bisosDev/control/currents/fp=, printed during the
+  webVirtDom part of =fullUpdate= for a PALS site. The directory does not exist.
+- *Impact*: none seen --- the vhost was written, enabled and nginx reloaded; the site serves.
+- *Wanted*: find what reads the currents there and either create them or make the read quiet.
 
 * Captured Knowledge
 
