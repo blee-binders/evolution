@@ -613,6 +613,65 @@ Why it mattered: =whichBinPath()= resolves by PATH order. A surviving
 at position 18, and the systemd units would have been baked with the old
 venv path while appearing correctly migrated.
 
+** INFO PyYAML is in =bisos3= only incidentally --- declare it before using it
+:PROPERTIES:
+:REPO: any bisos-pip package that parses YAML (first case: bisos-pip/dockerProc)
+:FOUND: 2026-10-26
+:END:
+
+- *Where*: =/bisos/venv/py3/bisos3= (PyYAML 6.0.3 importable); e.g. =bisos.dockerProc='s
+  =py3/setup.py=, whose =requires= is dblock-generated from =requirements.txt= and has no pyyaml.
+- *What*: =import yaml= works in =bisos3= because some other package pulled PyYAML in, not because
+  any package that uses it declares it.
+- *Impact*: code relying on it breaks in a venv or pipx install where nothing else brings it.
+  Declare =pyyaml= through the package's requirements / dblock before using it.
+  =bisos.dockerProc= avoids it for now (Stage 9 of its =AI-WorkPlan.org=): it reads
+  =docker-compose.yml= with the same simple line rules as bro_dockerfiles' =containerManage.sh=.
+
+** TODO Adopt the =fto_= lifecycle verbs beyond =bisos.dockerProc=
+:PROPERTIES:
+:REPO: bisos-pip/fileObj (document the vocabulary), bisos-pip/capability (CBM adoption)
+:FOUND: 2026-10-26
+:END:
+
+- *Where*: =bisos.dockerProc= (=containerProc_csu.py=, "The fto_ lifecycle verbs"; its README,
+  "Walks: Gate, Staleness and the fto_ Lifecycle Verbs"; Stage 9 of its =AI-WorkPlan.org=).
+- *What*: one set of *leaf* verb names for every walkable leaf kind --- =fto_prepare=,
+  =fto_materialize=, =fto_reMaterialize=, =fto_unMaterialize=, =fto_clean= --- so that one
+  =fto_forwardToLeaves= walk can drive leaves of different kinds below one branch (today each seed
+  has its own prefix: =cbm_*=, =containerProc_*=). Only =bisos.dockerProc= has them so far, as
+  thin aliases. Meaning: prepare = make ready, non-destructive, not gated; materialize = bring
+  up; reMaterialize = re-create with the current preparation; unMaterialize = take down; clean =
+  undo prepare; the last four gated (=enabled= | =available= | =disabled=, missing = available).
+- *Impact*: until =bisos.capability= gives CBM leaves the same names (=fto_prepare= ≈
+  =cbm_sbom=, =fto_materialize= = =cbm_materialize=, ...), heterogeneous walks cannot use them.
+- *Update 2026-10-26*: the vocabulary, gate and status log move into =bisos.fileObj= itself ---
+  design in =bisos-pip/fileObj/README.org= ("Generic Lifecycle Verbs"), work in its
+  =AI-WorkPlan.org= Stage 4; =bisos.dockerProc= follows in its Stage 10. What remains here is
+  =bisos.capability='s adoption (=bisos.fileObj= Stage 4, 4.7).
+
+** INFO PyCS dispatches only top-level classes that are *direct* subclasses of =cs.Cmnd=
+:PROPERTIES:
+:REPO: any bisos-pip package (first case: bisos-pip/dockerProc)
+:FOUND: 2026-10-26
+:END:
+
+- *Where*: =bisos.b.cs.main.classedCmndsDict= → =inCmnd.cmndList_mainsMethods= →
+  =b.ast.ast_topLevelClassNamesInFile=.
+- *What*: =cmndList_mainsMethods= takes the top-level class names in the source of the main file
+  and of each *imported* =csuList= module, and intersects them with =cs.cmndSubclassesNames()=,
+  i.e. =cs.Cmnd.__subclasses__()= --- *direct* subclasses only. So a command is dispatched only if
+  it is (a) a top-level =class= statement, (b) in a =csuList= module the program has imported, and
+  (c) declared with =cs.Cmnd= among its own bases. A class deriving from another command class, or
+  from a helper base that derives from =cs.Cmnd=, or made by a factory function, imports fine and
+  is never dispatched ("Invalid Action").
+- *Impact*: put shared behaviour in a mixin that is *not* a =cs.Cmnd= and declare each command as
+  =class x(Mixin, cs.Cmnd)=; make aliases delegate to their target (copy its
+  =cmndParamsMandatory= / =cmndParamsOptional= / =cmndArgsLen=) rather than derive from it.
+  =bisos.dockerProc='s Stage 9 commands and its deprecated aliases were undispatchable for this
+  reason (fixed 2026-10-26); =bisos.fileObj='s lifecycle verbs follow the rule. Tests that call
+  command classes directly do not catch it: test through the dispatcher.
+
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
 # eval: (setq-local org-log-done 'time)
