@@ -672,6 +672,26 @@ venv path while appearing correctly migrated.
   reason (fixed 2026-10-26); =bisos.fileObj='s lifecycle verbs follow the rule. Tests that call
   command classes directly do not catch it: test through the dispatcher.
 
+** INFO A Blee menu rebuilt from =menu-bar-update-hook= makes Emacs slow
+:PROPERTIES:
+:REPO: blee/env3 (fixed there 2026-10-31: legacy/modes-menu.el, legacy/apps-menu.el)
+:FOUND: 2026-10-31
+:END:
+
+- *Where*: =env3/legacy/modes-menu.el= and =apps-menu.el=: =…:menu-bar|install= added
+  =…:menu-bar|update-hook=, which calls =…:menu:global|define=, to =menu-bar-update-hook=.
+- *What*: that hook runs on nearly every redisplay of the menu bar; each run rebuilt the whole Acts
+  menu (1.26 s) and Apps menu (0.26 s), with every plugin's submenu. Blee on Emacs 31.1 slowed down
+  with use. A Blee that stays fast with truncated Acts/Apps menus had lost both functions to an
+  error: Emacs removes a function that signals an error in this hook.
+- *Impact*: fixed --- the menus are built once in =|install= and once more when Emacs is first
+  idle; =modes:menu-bar|refresh= / =apps:menu-bar|refresh= rebuild on demand. Any menu: never
+  rebuild it from =menu-bar-update-hook=; use =:active=, =:visible=, =:selected= or =:filter=
+  (skills =blee-pkg-authorship=, =bs-blee-emacs-server= "Diagnose a slow Blee").
+- *Not a bug*: =gc-cons-threshold= reads 800000 in an idle Blee --- Doom's gcmh sets it to its low
+  value when idle and to 64 MB while commands run. =Error muted by safe_call … keymap-canonicalize=
+  in =*Messages*= comes from menu labels written as expressions (a Blee idiom): noise.
+
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
 # eval: (setq-local org-log-done 'time)
