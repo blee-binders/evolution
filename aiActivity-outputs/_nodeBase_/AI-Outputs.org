@@ -382,6 +382,33 @@ no-op when satisfied, so they stay idempotent). Used by =bisos.pypiserver= (=pip
 retired 2026-10-20 with the copy-sync it served; the limitation stands), or a value-taking param. Retire the verb
 split if flags become possible; the verb is arguably clearer for a destructive action anyway.
 
+** TODO Dependabot alerts on bisos-pip repos, from the build-time pins setuptools 75.8.0 and wheel 0.38.4
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/blee/env3
+:FOUND: 2026-11-01
+:END:
+
+- *Where*: =blee/env3/dblocks/dblock-comeega-python.el= hard-codes =setuptools==75.8.0= and
+  =wheel==0.38.4= (lines 2343--2344, 2361--2362; =$setuptoolsVer= at 2500). The
+  =b:py3:pypi:setup/*= dblocks write them into every package's =py3/setup.py= =requires= and
+  =py3/pyproject.toml= build =requires=.
+- *What*: GitHub's Dependabot reads those two files on the default branch and matches the pins
+  against its advisory database. Pushes to bisos-pip/capability, pals and sbom (2026-11-01, a
+  WorkPlan-only commit) printed =remote:= summaries: capability 5 (2 high, 2 moderate, 1 low), pals
+  3 (1, 1, 1), sbom 5 (2, 2, 1). The alerts predate that push; GitHub repeats the summary on every
+  push.
+- *Not yet confirmed*: the alerts themselves were not read (=gh= is not installed; the list needs
+  the owner's login). That they come from these pins is inferred: they are the only non-bisos pins,
+  and pals, the one without =wheel=, has 2 fewer. See
+  =https://github.com/bisos-pip/<repo>/security/dependabot= for the packages and fixed versions.
+- *Impact*: low in practice: build-time pins, not what runs on a host. But the alerts are real,
+  visible on GitHub, and probably on every bisos-pip repo with these pins, not only the three
+  pushed that day.
+- *Wanted*: confirm the alerts' packages; raise the pins in the dblock writer (one place), check
+  the build with =pypiProc.sh=, then regenerate =setup.py= / =pyproject.toml= across the packages
+  at their next release. Mind [[devpi-server 6.20.3 requires setuptools<=81]] (Captured Knowledge)
+  when choosing the setuptools version.
+
 * AI-Activity Templates and Skills
 
 ** INFO PALS sites: =pals-site= skill, and a banna-or-PALS choice in astro-site
@@ -545,6 +572,38 @@ of them, and orphaned libraries are harmless while a missing one is not.
   webVirtDom part of =fullUpdate= for a PALS site. The directory does not exist.
 - *Impact*: none seen --- the vhost was written, enabled and nginx reloaded; the site serves.
 - *Wanted*: find what reads the currents there and either create them or make the read quiet.
+
+* Blee --- Org Commands and Dblocks
+
+** TODO A =bx:= org link type for commands: =[[bx:org-cycle][...]]= instead of =[[elisp:(org-cycle)][...]]=
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/blee/env3
+:FOUND: 2026-11-01
+:END:
+
+Low priority.
+
+- *What*: Blee's org commands are mostly =elisp:= links that call one command with no arguments.
+  A =bx:= link type (=org-link-set-parameters "bx" :follow ...=) whose path names the command
+  would be shorter and crisper: =[[bx:org-cycle][| ]]= for =[[elisp:(org-cycle)][| ]]=.
+- *Scale*: =blee/env3/dblocks/*.el= writes =elisp:(org-cycle)= 814 times (112 =.el= files in env3
+  name it). The most frequent no-argument links in the dblock writers: =org-cycle= 1211,
+  =blee:ppmm:org-mode-toggle= 482, =delete-other-windows= 351, =beginning-of-buffer= 308,
+  =org-shifttab= 99, =show-all= 58. Calls with arguments, or =progn= forms, stay =elisp:=.
+- *To decide*:
+  - Where =bx:= is defined. It must be loaded before any panel or dblock output is followed, so
+    Blee's core (=blee/env3=, beside the dblock writers that would produce it) rather than a
+    blee-pkg. A package's own link types stay in the package (=aiActivity:= is in
+    =blee/vscode-claude=, layer 5).
+  - What =:follow= does: =call-interactively= on =(intern path)=, accepting only a =commandp=. That
+    is safer than =elisp:= (it cannot run arbitrary forms), and is why it would not need
+    =org-link-elisp-confirm-function=.
+  - Migration: change the dblock writers; bodies change as each file is regenerated ("Update Buf
+    Dblocks"). Hand-written =elisp:= links can stay: both keep working.
+  - Outside Blee (GitHub, plain Emacs) an unknown =bx:= link shows as text, as =elisp:= links do in
+    practice.
+- *Note*: =bx:= was kept free for this when the AI-Activity links were named =aiActivity:=
+  (vscode-claude WorkPlan 7.1).
 
 * Captured Knowledge
 
