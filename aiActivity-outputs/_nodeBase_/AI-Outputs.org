@@ -830,6 +830,43 @@ venv path while appearing correctly migrated.
 - *Not a bug*: =gc-cons-threshold= reads 800000 in an idle Blee --- Doom's gcmh sets it to its low
   value when idle and to 64 MB while commands run. =Error muted by safe_call … keymap-canonicalize=
   in =*Messages*= comes from menu labels written as expressions (a Blee idiom): noise.
+- *2026-11-03*: a Blee up since before the fix still had =apps:menu-bar|update-hook= on the hook
+  (0.65 s a run, measured there): the fixed =|install= removes it, but only when run again ---
+  restart, or =(remove-hook 'menu-bar-update-hook 'apps:menu-bar|update-hook)=. And 26 menu
+  installers added an =…:menu|update-hook= of their own: empty ones (env3 legacy apps-*, modes-*,
+  browsers, nafm; aiplus gptel, claude-code, monet; blee-menus eat, ghostel, vterm; vscode-claude),
+  plus two that rebuilt a menu (=nafm:menu-bar-update-hook=; org-roam's, which named
+  =web:search:menu|update-hook=). Those =add-hook= calls are removed. Left: blee-menu-blee.el's
+  =bxo:listSubMenuDef-update=, which re-adds one item (0.00001 s).
+  Also: =apps-menu.el= and =modes-menu.el= call each separately packaged menu's =plugin|install=
+  under =(when (fboundp ...))= (aiplus, blee-menus, open-in, vscode-claude, bidi-menu, blee-libs'
+  tlm, the mtdt packages), so a package not loaded drops its entry instead of breaking the menu.
+  Measured: the Apps rebuild costs 0.74 s, of which the vscode-claude menu is 0.013 s.
+
+* Pull On Other Hosts <2026-11-03 Tue>
+
+** TODO Pull on other hosts --- 2026-11-03, session at blee/vscode-claude
+:PROPERTIES:
+:REPO: other hosts
+:FOUND: 2026-11-03
+:END:
+
+The repos this session committed and pushed (its two commit walks), each as of its last commit.
+On another BISOS host, click a line, or the last one for all; mark this DONE once pulled.
+- [[bashRun:git -C /bxRepos/bisos-pip/aiActivity pull]] --- 2e776fe
+- [[bashRun:git -C /bxRepos/bisos-pip/vscodeClaude pull]] --- e422ca5
+- [[bashRun:git -C /bxRepos/bxObjects/aiTemplates-workFlow pull]] --- f7b7549
+- [[bashRun:git -C /bxRepos/bxObjects/aiTemplates-DE pull]] --- b4e773a
+- [[bashRun:git -C /bxRepos/bxObjects/aiActivityTemplates pull]] --- 88074d1
+- [[bashRun:git -C /bxRepos/blee/vscode-claude pull]] --- cbc2dde
+- [[bashRun:git -C /bxRepos/blee/env3 pull]] --- e555958
+- [[bashRun:git -C /bxRepos/blee/aiplus pull]] --- 10db48c
+- [[bashRun:git -C /bxRepos/blee/blee-menus pull]] --- 24aebf1
+- [[bashRun:git -C /bxRepos/blee-binders/blee-core pull]] --- 12dcd21
+- [[bashRun:git -C /bxRepos/bxGenesis/start pull]] --- baa892a
+- [[bashRun:git -C /bxRepos/blee-binders/evolution pull]] --- (this commit)
+- All of them:
+  [[bashRun:cd /bxRepos && for d in bisos-pip/aiActivity bisos-pip/vscodeClaude bxObjects/aiTemplates-workFlow bxObjects/aiTemplates-DE bxObjects/aiActivityTemplates blee/vscode-claude blee/env3 blee/aiplus blee/blee-menus blee-binders/blee-core bxGenesis/start blee-binders/evolution; do git -C $d pull; done]]
 
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
