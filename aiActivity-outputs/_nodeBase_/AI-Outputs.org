@@ -605,6 +605,86 @@ Low priority.
 - *Note*: =bx:= was kept free for this when the AI-Activity links were named =aiActivity:=
   (vscode-claude WorkPlan 7.1).
 
+** TODO =bashRun:= and =bashRunHere:= org links for shell commands, instead of =elisp:(lsip-local-run-command ...)=
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/blee/env3
+:FOUND: 2026-11-02
+:END:
+
+A companion to the =bx:= item above: that one covers no-argument elisp commands, this one shell
+commands. The link types exist (2026-11-02); the dblock writers do not produce them yet.
+
+- *What*: every command button in a panel was
+  =[[elisp:(lsip-local-run-command "someCmnd and options")][someCmnd and options]]=. Now it can be
+  =[[bashRun:someCmnd and options]]=: no repetition, no elisp form, no quoting of the command in an
+  elisp string (a =\"= in the command broke the old form). Without a description the link displays
+  as itself, =bashRun:someCmnd and options=, so the prefix says that a click runs it; a
+  description is still possible (=[[bashRun:long command][Check]]=). =bashRunHere:= first =pushd='s
+  to the buffer's directory, as =lsip-local-run-command-here= does.
+- *Done*: =blee/env3/legacy/lsip-basic.el= (loaded at startup by =bcg-org.el=):
+  =org-link-set-parameters= for both, after =ol= loads; =:follow= trims the path and calls
+  =lsip-local-run-command= / =lsip-local-run-command-here=. Tested in batch Emacs 31.1 with the
+  runners stubbed (8 checks: the type is recognized, plain, with spaces around the command, with a
+  description, the =Here= form). Not yet: a click in a real Blee.
+- *Why =bashRun:=, not =bash:=*: org already has a =shell:= link type (=shell-command=, after
+  =org-link-shell-confirm-function=), and =bash:= would read as its variant or as a reference to
+  a bash file or block; the verb says what a click does and gives =bashRunHere:= its name.
+- *Scale*: in the 733 =fullUsagePanel-en.org= under =/bisos/panels= (2026-11-02),
+  =lsip-local-run-command= 3885 times and =lsip-local-run-command-here= 2116 (680 of those are each
+  panel's =lsf=, =pwd= and =pushd= buttons). In =blee/env3/dblocks/*.el=, 66 and 36 writes, from
+  =blee:panel:button:shCommand=, =blee:panel:icm:bash:intro=, =blee:panel:icm:py:intro= and the
+  top controls.
+- *Left*:
+  - Migration: =blee:panel:button:shCommand= and the intro writers produce the new links; bodies
+    change as each panel is regenerated. Hand-written =elisp:= buttons keep working.
+  - Later: a =]= in a command needs org's backslash escape; whether a click asks before running
+    (=elisp:= clicks go through =org-link-elisp-confirm-function=) is a policy to set once.
+- *Where the button idioms are described*: the =blee-panel-authorship= skill, "Clickable shell
+  commands".
+
+* PyPI Releases Pending --- bisos-pip Packages
+
+Checked against PyPI on 2026-11-02 (bxGenesis/start WorkPlan 2.1). Releasing is the user's
+(=pypiProc.sh= in the package's =py3/=; skill =bisos-pip-release=).
+
+** TODO Five CBM packages are not on PyPI yet
+:PROPERTIES:
+:REPO: bisos-pip/pypiserver, devpi, geneweb, gitlab, postgres
+:FOUND: 2026-11-02
+:END:
+
+- *What*: committed and pushed, never uploaded: =bisos.pypiserver=, =bisos.devpi=,
+  =bisos.geneweb=, =bisos.gitlab=, =bisos.postgres=. Held back on purpose; the other CBM packages
+  (=bisos.kafka=, =bisos.grafana=, =bisos.prometheus=, =bisos.airflow=) are released.
+- *Impact*: their CBM leaves cannot be materialized on a platform built from PyPI (a VM from
+  =bro_dockerfiles=). Their ports, =.here= addresses and accounts are already in =bisos.banna= 0.48.
+- *Rule*: a CBM package belongs to its CBM leaf, not to =rawBisos-sbom.pcs= (bisos-genesis
+  AI-Activity.org).
+
+** TODO Packages with code committed after their last upload
+:PROPERTIES:
+:REPO: bisos-pip/<name>, as listed
+:FOUND: 2026-11-02
+:END:
+
+=bisos.banna= (0.48) and =bisos.b= (0.96) were released on 2026-11-02. Left:
+
+| Package                       | Unreleased                                           | Matters for |
+|-------------------------------+------------------------------------------------------+-------------|
+| =bisos.bashStandaloneIcmSeed= | 1 commit, 2025-02: "Unisos and blee elimination"     | stage 0     |
+| =bisos.pycs=                  | 1 commit, 2026-08: "Added dependencies" (still 0.27) |             |
+| =bisos.bxoGitlab=             | 2 commits, 2026-06                                   |             |
+| =bisos.lcnt=                  | 1 commit, 2026-03: mkdir in disposition              |             |
+| =bisos.basics=                | 1 small commit (cleanup or README)                   | low         |
+| =bisos.coreDist=              | 1 small commit (cleanup or README)                   | low         |
+| =bisos.examples=              | 1 small commit (cleanup or README)                   | low         |
+| =bisos.uploadAsCs=            | 1 small commit (cleanup or README)                   | low         |
+
+- =bisos.provision= (stage 0) requires =bisos.bashStandaloneIcmSeed=: release it first.
+- =bisos.currents= is unclear: "0.70 to stderr not stdout" was committed a week after 0.70 was
+  uploaded, under the same number. Check, and bump if the upload predates it.
+- Not pending: packages whose only commit after the upload is the release commit itself.
+
 * Captured Knowledge
 
 ** INFO devpi-server 6.20.3 requires setuptools<=81 --- it cannot share a venv with setuptools 82+
