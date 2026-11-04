@@ -408,6 +408,78 @@ split if flags become possible; the verb is arguably clearer for a destructive a
   at their next release. Mind [[devpi-server 6.20.3 requires setuptools<=81]] (Captured Knowledge)
   when choosing the setuptools version.
 
+** WORKAROUND bisos-pip =ftoProc.sh= =nodesList= is only =profile= --- dev pipInstalls walk visits nothing
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip (root repo, ftoProc.sh) and /bisos/core/bsip (bisosPyVenvSetup.sh)
+:FOUND: 2026-11-04
+:END:
+
+- *Where*: =bisos-pip/ftoProc.sh= (dblock =bx:dblock:pypi:bash:nodesList=), used by
+  =bisosPyVenvSetup.sh= =vis_venvPy3Dev_pipInstalls=:
+  =ftoProc.sh -i ftoWalkRunCmnd pypiProc.sh -i pkgReInstall edit <dev-venv>=.
+- *What*: the committed =nodesList= is just =profile=, so the walk prints "Missing pypiProc.sh" and
+  "No Processor Found" and installs nothing. =pyVenv_DevSetup= therefore leaves =dev-bisos3= without
+  editable packages (=from bisos import b= then fails).
+- *Related, same script*: =vis_sitePkgsBaseGet= knows only python3.9 and 3.11 (host is 3.13); the script
+  has no sbom / gitist step.
+- *Observed*: 2026-11-04, after the repos were switched to =auth= and =pyVenv_DevSetup= was run.
+
+*Workaround*: loop over the packages directly (63 had a =py3/pypiProc.sh=; 59 installed):
+
+#+begin_example
+cd /bisos/git/bxRepos/bisos-pip && source /bisos/venv/py3/dev-bisos3/bin/activate
+for d in */py3/pypiProc.sh ; do ( cd ${d%%/*}/py3 && ./pypiProc.sh -i pkgReInstall edit /bisos/venv/py3/dev-bisos3 ) ; done
+#+end_example
+
+** TODO =pypiProc.sh -i pkgReInstall= exits 0 when the install failed; four packages cannot be installed editable
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/lcnt, /bisos/git/bxRepos/bisos-pip/pycs, /bisos/git/bxRepos/bisos-pip/qmailSvc, /bisos/git/bxRepos/bisos-pip/gnome (and the pypiProc.sh machinery)
+:FOUND: 2026-11-04
+:END:
+
+- *lcnt*: =setup.py= =scripts= lists =bin/beamerExternalExtensions.251130=, which does not exist.
+- *pycs*: =setup.py= =scripts= lists =bin/fileParamManage-k1.cs=, which does not exist.
+  (Both: =setup.py= is generated, so regenerate with =pypiProc.sh=, do not hand-edit.)
+- *qmailSvc*: the generated requirements contain the bare word =from=
+  (=No matching distribution found for from=).
+- *gnome*: =pygobject= build fails: =mesonpy= is missing (and likely the apt dev libraries).
+- *Impact*: =pkgReInstall= returns 0 in all four cases, so a loop over packages cannot see the failure;
+  only the per-package log shows it. Side effect: the failed runs still leave the package's scripts
+  symlinked into =/bisos/venv/py3/devbin=.
+- Running =pkgReInstall= also modified tracked files in each repo (=py3/README.rst=,
+  =py3/_description.org=): expected (they are generated), but it dirties every repo.
+
+** TODO =fullyMaterialize= (2026-11-04): shared failures across the hereWeb CBMs
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/webCap (nginx), the CBM packages named below, /bisos/git/bxRepos/bisos-web/csPlayer-webUi
+:FOUND: 2026-11-04
+:END:
+
+Per-leaf table: =AI-WorkPlan.org=, Stage 4, of =bisos-pip/capability=.
+- *nginx IPv6*: =nginx: [emerg] socket() [::]:80 failed (97: Address family not supported by protocol)=
+  makes =nginx -t= fail, so every vhost enable fails (airflow, gatsbyBxSidebar, csPlayerUi, platform)
+  and =nginx.service= is failed. REPO: =webCap=.
+- *kafka, prometheus, grafana, pypiserver, devpi, geneweb*: =<name>Cbs-sbom.pcs: command not found=
+  (exit 127): the bundle sbom is not on PATH when the CBS runs.
+- *reactPlus*: =npm install --global= x5 fails with EACCES on =/usr/local/lib/node_modules=;
+  gatsbyBxSidebar then fails (=gatsby: command not found=).
+- *Node v20.19.2* is too old for Astro (>=22.12): =platform= site build fails.
+- *csPlayerUi*: build asks for =/bxRepos/cliGui/webCliGui/package.json= (path missing the =/bisos/git= prefix?).
+- *Walker reports =failed=0=* for all of this (the =g_csMain= exit-code limitation), so the walk summary
+  cannot be trusted.
+
+** INFO On a switched host (=/bisos/git/bxRepos= -> =auth=) the templates and this ledger are not reachable
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bxObjects/aiActivityTemplates, /bisos/git/bxRepos/blee-binders
+:FOUND: 2026-11-04
+:END:
+
+After =bx-gitReposBases ... --baseDir=/bisos/git/auth/bxRepos= only part of the repos exist under =auth=:
+=/bisos/apps/defaults/ai-templates= (-> =bxObjects/aiActivityTemplates=) is dangling, so an activity's
+=AI-WORKFLOW.org=, =AI-Activity.org= and =.claude/commands= symlinks do not resolve, and
+=blee-binders/evolution= (this file) is only in the =anon= clone. This entry was written to the =anon= copy;
+reconcile it into =auth= when =blee-binders/evolution= is cloned there.
+
 * AI-Activity Templates and Skills
 
 ** INFO PALS sites: =pals-site= skill, and a banna-or-PALS choice in astro-site
