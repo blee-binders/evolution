@@ -676,6 +676,25 @@ of them, and orphaned libraries are harmless while a missing one is not.
 - *Wanted*: add ="rePublication/fonts"= to the =repos= list of =bxRepos-gitist.pcs=, so the next
   rawBisos has it before the fonts sbom runs.
 
+** TODO =rawBisos-sbom.pcs= lists eight pip packages as repo paths, not pip names
+:PROPERTIES:
+:REPO: bisos/bsip4 (bin/rawBisos-sbom.pcs), bisos-pip/capSpecs
+:FOUND: 2026-11-12
+:END:
+
+- *What*: =rawBisos-sbom.pcs= has =pp("bisos-pip/devpi")= and seven more (=geneweb=, =gitlab=, =grafana=,
+  =kafka=, =postgres=, =prometheus=, =pypiserver=), the repos that =bxRepos-gitist.pcs= adds. A pip
+  name is =bisos.devpi=; pip reads =bisos-pip/devpi= as a path: =pip install --dry-run --no-index
+  bisos-pip/devpi= says "It looks like a path. File 'bisos-pip/devpi' does not exist". So
+  =rawBisos-sbom.pcs -i pipPkgs_update all= cannot install those eight (the other ten entries are proper
+  names). Its pip is also "taken from PATH" (=virtenv: None=), so which venv it changes depends on the
+  caller, and an update could replace an editable install in =dev-bisos3= with a PyPI copy.
+- *Impact here*: none for the developer platform: =pltfrmDevelBecome= (capSpecs WorkPlan 2.6) reads the
+  list with =pipPkgs_list=, maps each entry to its =bisos-pip= clone and checks that it is editable in
+  =dev-bisos3=; it never runs the sbom's pip update. A platform that does run the sbom gets the other
+  ten only.
+- *Wanted*: write them as =bisos.devpi= and so on (and decide whether the sbom should name a venv).
+
 * Blee --- Org Commands and Dblocks
 
 ** TODO A =bx:= org link type for commands: =[[bx:org-cycle][...]]= instead of =[[elisp:(org-cycle)][...]]=
