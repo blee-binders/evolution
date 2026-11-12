@@ -644,6 +644,38 @@ of them, and orphaned libraries are harmless while a missing one is not.
 - *Impact*: none seen --- the vhost was written, enabled and nginx reloaded; the site serves.
 - *Wanted*: find what reads the currents there and either create them or make the read quiet.
 
+** TODO =bxlcnt/bro_lcntBases-rawBisos= is not cloned on a rawBisos host
+:PROPERTIES:
+:REPO: the rawBisos repo list (bxRepos-gitist.pcs or bx-gitReposBases; not located), bisos-pip/lcnt
+:FOUND: 2026-11-12
+:END:
+
+- *What*: on this rawBisos host =/bisos/git/auth/bxRepos/bxlcnt= held only =bxtex=, =facilities=,
+  =overview= and =results=. =bro_lcntBases-rawBisos= (=git@mb2_github:bxlcnt/bro_lcntBases-rawBisos.git=,
+  public as https://github.com/bxlcnt/bro_lcntBases-rawBisos) was absent, though
+  =bisosLcntSetup.sh -i lcntBasesSetup= hardcodes it as the bases BXO (=bxdpt=, =BIB=, =CENTRAL=,
+  =REGISTRY=, =lcnt/lgpc= are linked into =/de/sys/lcnt= from it). =bpoActivate.sh= is for the sited
+  BISOS only, so on rawBisos this clone is the only source.
+- *Done here*: cloned by hand on 2026-11-12 into =/bisos/git/auth/bxRepos/bxlcnt/=.
+- *Wanted*: add ="bxlcnt/bro_lcntBases-rawBisos"= to the =repos= list of =bxRepos-gitist.pcs=
+  (=/bisos/git/bxRepos/bisos/bsip4/bin/=), the model to use from now on (=bx-gitReposBases= is the old
+  way), so the next rawBisos has it. That list holds the repos the registry does not clone; it has no
+  =bxlcnt= entry at present.
+- *Why it matters*: the CBM =lcntBases= (lcnt AI-WorkPlan Stage 3) needs it before it can link anything.
+
+** TODO =rePublication/fonts= is not cloned on a rawBisos host
+:PROPERTIES:
+:REPO: bisos/bsip4 (bxRepos-gitist.pcs), bisos-pip/lcnt
+:FOUND: 2026-11-11
+:END:
+
+- *What*: the font "XB Zar" comes from https://github.com/rePublication/fonts (=XBZar.zip=, =fpf.zip=, ...),
+  which =rawBisos-fonts-sbom.pcs= unzips from =/bisos/git/bxRepos/rePublication/fonts=. The clone was
+  absent: the sbom's unzip failed (exit 9) and the failure was hidden behind =ran ... ok=, and the first
+  LaTeX build then failed in fontspec ("XB Zar" not found). Cloned by hand on 2026-11-11.
+- *Wanted*: add ="rePublication/fonts"= to the =repos= list of =bxRepos-gitist.pcs=, so the next
+  rawBisos has it before the fonts sbom runs.
+
 * Blee --- Org Commands and Dblocks
 
 ** TODO A =bx:= org link type for commands: =[[bx:org-cycle][...]]= instead of =[[elisp:(org-cycle)][...]]=
