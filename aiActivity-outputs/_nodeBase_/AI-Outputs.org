@@ -695,6 +695,46 @@ of them, and orphaned libraries are harmless while a missing one is not.
   ten only.
 - *Wanted*: write them as =bisos.devpi= and so on (and decide whether the sbom should name a venv).
 
+** TODO =deb-src= should be enabled by the rawBisos install; on Debian 13 nothing enables it
+:PROPERTIES:
+:REPO: bisos/bsip4 (rawBisos install), /bisos/core/bsip (bin/debAptSourcesManage.sh), bisos/blee
+:FOUND: 2026-11-12
+:END:
+
+- *What*: =/bisos/blee/bin/lcaEmacsSrcBinsPrep.sh -i srcEnvSetup= needs =apt-get build-dep emacs=, so
+  =deb-src=. It calls =debAptSourcesManage.sh -i verifyDebSrc=, then =enableDebSrc= if missing. Both
+  read only =/etc/apt/sources.list=; Debian 13 has none (deb822:
+  =/etc/apt/sources.list.d/debian.sources=, =Types: deb=), and =enableDebSrc= handles only Ubuntu lines
+  (=add-apt-repository=). So on Debian 13
+  the check always fails, the enable does nothing, and =build-dep= fails.
+- *Decided* (user, 2026-11-12): enabling =deb-src= belongs earlier, in the rawBisos install, not in a
+  CBM. The =emacs31SrcBuild= CBM (capSpecs WorkPlan Stage 5) only checks it and stops with a clear
+  message.
+- *Wanted*: the rawBisos install sets =Types: deb deb-src= in =debian.sources=; =debAptSourcesManage.sh=
+  learns deb822 (verify and enable).
+
+** TODO =lcaEmacsSrcBinsPrep.sh=: a failed clone reported as done; emacsclient linked to a terminal
+:PROPERTIES:
+:REPO: bisos/blee (bin/lcaEmacsSrcBinsPrep.sh, bin/bleeLib.sh), bisos-pip/capSpecs
+:FOUND: 2026-11-12
+:END:
+
+- *Clone*: =-i srcPkgObtain emacs31= ran
+  =git clone --depth 1 -b emacs-31.1 https://git.savannah.gnu.org/...=; savannah answered HTTP 500
+  (=fatal: expected 'packfile'=), the script printed "Git cloned at tag
+  emacs-31.1" and exited 0, and =srcBuild=, =srcBinInstall=, =postInstall= went on to fail on the missing
+  tree. A retry a minute later worked.
+- *emacsclient*: =-i setAsDefault= ends with =bleeclient -i emacsClientMatchingSet=. Its
+  =vis_emacsClientMatching= (=bleeLib.sh=) takes the great-grandparent process as the Emacs server, which
+  holds only from a shell inside Emacs. Run from a CBM it found the terminal and made
+  =/usr/local/bin/emacsclient -> /usr/bin/xfce4-terminal=. Claude removed that link by hand.
+- *Impact here*: =emacs31SrcBuild-assemble.cs= (capSpecs WorkPlan 5.2) stops after a clone that left no
+  sources, and its =fullCheck= fails when =/usr/local/bin/emacsclient= leads to anything but an
+  emacsclient. It does not repair the link.
+- *Wanted*: the script checks the clone (=configure.ac= present) and fails; =emacsClientMatching= checks
+  that the pid is an Emacs (=/proc/<pid>/exe=) and does nothing otherwise, or =setAsDefault= takes the
+  client to match as a parameter.
+
 * Blee --- Org Commands and Dblocks
 
 ** TODO A =bx:= org link type for commands: =[[bx:org-cycle][...]]= instead of =[[elisp:(org-cycle)][...]]=
