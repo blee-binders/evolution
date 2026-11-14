@@ -1030,6 +1030,31 @@ On another BISOS host, click a line, or the last one for all; mark this DONE onc
 - All of them:
   [[bashRun:cd /bxRepos && for d in bisos-pip/aiActivity bisos-pip/vscodeClaude bxObjects/aiTemplates-workFlow bxObjects/aiTemplates-DE bxObjects/aiActivityTemplates blee/vscode-claude blee/env3 blee/aiplus blee/blee-menus blee-binders/blee-core bxGenesis/start blee-binders/evolution; do git -C $d pull; done]]
 
+* Pull On Other Hosts <2026-11-14 Sat>
+
+** TODO Pull on other hosts --- 2026-11-14, session on the LCNT localWeb export and the astro Library
+:PROPERTIES:
+:REPO: other hosts
+:FOUND: 2026-11-14
+:END:
+
+The repos this session committed and pushed (two commit walks), each as of its last commit.
+On another BISOS host, click a line, or the last one for all; mark this DONE once pulled.
+- [[bashRun:git -C /bxRepos/bisos-pip/lcnt pull]] --- d2dcae7
+- [[bashRun:git -C /bxRepos/bisos/lcnt pull]] --- a5fb90a
+- [[bashRun:git -C /bxRepos/bisos-pip/webCap pull]] --- c1e8ed9
+- [[bashRun:git -C /bxRepos/bisos/asc pull]] --- 1b74f12
+- [[bashRun:git -C /bxRepos/bisos-pip/pals pull]] --- 96a48ca
+- [[bashRun:git -C /bxRepos/bisos-web/astro-starter-bystar pull]] --- eede174
+- [[bashRun:git -C /bxRepos/blee-binders/bisos-apps pull]] --- 3745054
+- [[bashRun:git -C /bxRepos/bxObjects/aiTemplates-workFlow pull]] --- 3b362f3
+- [[bashRun:git -C /bxRepos/bxObjects/aiTemplates-DE pull]] --- 5c52891
+- [[bashRun:git -C /bxRepos/bisos-pip/aiActivity pull]] --- bb97cbc
+- [[bashRun:git -C /bxRepos/bxlcnt/bro_lcntBases-rawBisos pull]] --- 1d3152d  (its examples' Exports/localWeb are not committed yet)
+- [[bashRun:git -C /bxRepos/blee-binders/evolution pull]] --- (this commit, last: it holds this entry)
+- All of them:
+  [[bashRun:cd /bxRepos && for d in bisos-pip/lcnt bisos/lcnt bisos-pip/webCap bisos/asc bisos-pip/pals bisos-web/astro-starter-bystar blee-binders/bisos-apps bxObjects/aiTemplates-workFlow bxObjects/aiTemplates-DE bisos-pip/aiActivity bxlcnt/bro_lcntBases-rawBisos blee-binders/evolution; do git -C $d pull; done]]
+
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
 # eval: (setq-local org-log-done 'time)
