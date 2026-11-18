@@ -431,6 +431,12 @@ cd /bisos/git/bxRepos/bisos-pip && source /bisos/venv/py3/dev-bisos3/bin/activat
 for d in */py3/pypiProc.sh ; do ( cd ${d%%/*}/py3 && ./pypiProc.sh -i pkgReInstall edit /bisos/venv/py3/dev-bisos3 ) ; done
 #+end_example
 
+*Do not use this loop again* (2026-11-15): it installs every repo, obsolete ones included. It put
+=unisos.marme= and four =unisos.*= packages into dev-bisos3 (removed 2026-11-15, with 61 devbin links).
+Install what BISOS installs instead: =bisos.py3-all='s closure (old) and, the direction, the
+=pipPkgsList= of =-sbom.pcs= files such as =bisos/bsip4/bin/rawBisos-sbom.pcs=. A scope-driven walk is
+planned in bisos.pycs WorkPlan 2.5 (=pipPkgsStatus.cs=).
+
 ** TODO =pypiProc.sh -i pkgReInstall= exits 0 when the install failed; four packages cannot be installed editable
 :PROPERTIES:
 :REPO: /bisos/git/bxRepos/bisos-pip/lcnt, /bisos/git/bxRepos/bisos-pip/pycs, /bisos/git/bxRepos/bisos-pip/qmailSvc, /bisos/git/bxRepos/bisos-pip/gnome (and the pypiProc.sh machinery)
@@ -440,6 +446,7 @@ for d in */py3/pypiProc.sh ; do ( cd ${d%%/*}/py3 && ./pypiProc.sh -i pkgReInsta
 - *lcnt*: =setup.py= =scripts= lists =bin/beamerExternalExtensions.251130=, which does not exist.
 - *pycs*: =setup.py= =scripts= lists =bin/fileParamManage-k1.cs=, which does not exist.
   (Both: =setup.py= is generated, so regenerate with =pypiProc.sh=, do not hand-edit.)
+  Fixed 2026-11-15 (pycs WorkPlan 2.1). Cause of both: the next entry (=bx-dblock= outside Emacs).
 - *qmailSvc*: the generated requirements contain the bare word =from=
   (=No matching distribution found for from=).
 - *gnome*: =pygobject= build fails: =mesonpy= is missing (and likely the apt dev libraries).
@@ -448,6 +455,52 @@ for d in */py3/pypiProc.sh ; do ( cd ${d%%/*}/py3 && ./pypiProc.sh -i pkgReInsta
   symlinked into =/bisos/venv/py3/devbin=.
 - Running =pkgReInstall= also modified tracked files in each repo (=py3/README.rst=,
   =py3/_description.org=): expected (they are generated), but it dirties every repo.
+
+** TODO =bx-dblock= outside Emacs updates nothing and exits 0 --- =pkgReInstall= keeps a stale =setup.py=
+:PROPERTIES:
+:REPO: /bisos/blee/bin (bx-dblock, bleeLib.sh) and /bisos/core/bsip/bin/seedPypiProc.sh
+:FOUND: 2026-11-15
+:END:
+
+- *Where*: =seedPypiProc.sh= =vis_fullPrepBuild= (run by =pkgReInstall=) and =vis_readmeToDescriptionOrg=
+  call =bx-dblock -i dblockUpdateFiles= on =setup.py=, =pyproject.toml= and a copy of =README.org=.
+  =bx-dblock= runs the update in a Blee Emacs, which it finds by =G_emacsServerPid=
+  (=bleeLib.sh= =vis_emacsServerPidFromEnv= / =vis_emacsServerSocketFromEnv=).
+- *What*: =G_emacsServerPid= is set only in shells started inside Emacs. Elsewhere (a VS Code terminal,
+  Claude, cron, a walk) =bx-dblock= prints "Missing emacsServerSocket" and
+  "--socket-name=: command not found", updates nothing, and exits 0. =pkgReInstall= then builds and
+  installs with the old =setup.py= --- a removed or added =bin/= script, a changed requirement, never
+  reach the install --- and still exits 0 (previous entry).
+- *Seen*: =bisos.pycs=, 2026-11-15: =setup.py= still listed the deleted =bin/fileParamManage-k1.cs=.
+  The 2026-11-04 loop over all packages (entry above) was run by Claude outside Emacs, so it likely
+  regenerated no =setup.py= at all; lcnt's stale script is probably the same cause.
+- *Workaround*: export the pid of the running Blee Emacs (the number ending the socket name in
+  =/tmp/emacs<uid>/= or =/run/user/<uid>/emacs/=), then run =pypiProc.sh= as usual:
+  =export G_emacsServerPid=3248= for =/tmp/emacs1000/blee-3.1-30.1-3248=.
+- *Wanted*: =bx-dblock= fails (non-zero) when it has no Emacs; and falls back to
+  =vis_emacsServerSocketDefault= (the most recent socket) when =G_emacsServerPid= is unset ---
+  that function exists in =bleeLib.sh= but the =FromEnv= path does not use it. A check that
+  =setup.py='s =scripts= match =bin/= is being built in bisos.pycs (WorkPlan Stage 2, =pkgLocalStatus=).
+
+** TODO =bisos.b= requires the unrelated PyPI package =by=, which pulls in scikit-learn
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/b (and the requirements generation in seedPypiProc.sh)
+:FOUND: 2026-11-15
+:END:
+
+- *Where*: =bisos-pip/b/py3/setup.py=, the generated =requires= list (dblock
+  =b:py3:pypi:setup/requires=), has ="by"= since release 0.90 ("Now using .pcs").
+- *What*: =by= (0.0.8, "selection tools", https://github.com/t-c-w/by) is a third-party package; it
+  depends on scikit-learn, which brings joblib, cloudpickle and the rest. No file of =bisos.b= imports
+  =by= (no =import by= / =from by= anywhere in =py3/=), so it is almost certainly a false hit of the
+  import scan behind the requirements (=vis_genPipreqs=: =pipreqs= / =pipreqs-plus.cs=).
+- *Impact*: =bisos.b= is required by nearly every bisos-pip package, so every install --- dev-bisos3
+  and bisos3 (both have =by= installed), pipx installs of any bisos package --- downloads scikit-learn
+  for nothing. Seen in the pip chain of a =bisos.pycs= reinstall on 2026-11-15:
+  =bisos.pycs -> bisos.b -> by -> scikit-learn -> joblib -> cloudpickle=.
+- *Wanted*: find which source line the scan maps to =by=, drop =by= from the generated list (fix the
+  scan or exclude it, not a hand-edit of =setup.py=), release =bisos.b=; then =pip uninstall by=
+  (and scikit-learn, if nothing else needs it) in the venvs.
 
 ** TODO =fullyMaterialize= (2026-11-04): shared failures across the hereWeb CBMs
 :PROPERTIES:
@@ -479,6 +532,26 @@ After =bx-gitReposBases ... --baseDir=/bisos/git/auth/bxRepos= only part of the 
 =AI-WORKFLOW.org=, =AI-Activity.org= and =.claude/commands= symlinks do not resolve, and
 =blee-binders/evolution= (this file) is only in the =anon= clone. This entry was written to the =anon= copy;
 reconcile it into =auth= when =blee-binders/evolution= is cloned there.
+
+** TODO LCNT: a Reveal build type that also makes the frame images (=disposition+html=)
+:PROPERTIES:
+:REPO: bisos/lcnt (=bin/lcnLcntBuildLib.sh=, =bin/seedLcntProc.sh=)
+:FOUND: 2026-11-18
+:END:
+
+- *Where*: =lcnLcntBuildLib.sh=, =presReveal_build= (line ~452) generates =LCNT-INFO/Builds/pres-reveal/=
+  with =results= = =html=. That build only makes the HTML; Reveal's =derivedImage= frames show
+  =disposition.gened/<label>/slide-1.png=, which only =lcntProc.sh -i beamerDerivedFullBuild= (or a
+  =disposition= result) makes. =disposition.gened/= is not in git and =fullClean ForGit= deletes it,
+  so a Reveal build after a clean or a fresh clone shows broken images. Seen with the EmacsConf26
+  talk (=bxlcnt/bro_lcntBases-rawBisos/.../examples/aiActivity_EmacsConf26=); EmacsConf25's spec
+  was hand-set to =disposition+html=.
+- *What* (Mohsen): a second Reveal build type in =lcnLcntBuildLib.sh=, e.g. =revealHtmlFull=
+  (=Builds/pres-revealFull/=, =results= = =disposition+html=), so a self-contained Reveal build is
+  one choice of =curBuild=; keep =pres-reveal= (=html=) for quick rebuilds when the images are current.
+- *Related*: the =disposition= branch of =seedLcntProc.sh= (line ~3694) deletes =./disposition=, but
+  =beamerDerivedFullBuild= deletes =./disposition.gened=; images of removed frames may stay behind.
+  Skills: =lcnt-build-and-release=, =lcnt-multimedia= (aiTemplates-DE) describe both build forms.
 
 * AI-Activity Templates and Skills
 
