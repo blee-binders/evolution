@@ -36,6 +36,7 @@
 *                                   _━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━_                          [[elisp:(org-shifttab)][<)]] E|
 ####+END
 
+
 * What This File Is
 
 A *central, cross-project ledger* of action items, defects and findings that
@@ -552,6 +553,25 @@ reconcile it into =auth= when =blee-binders/evolution= is cloned there.
 - *Related*: the =disposition= branch of =seedLcntProc.sh= (line ~3694) deletes =./disposition=, but
   =beamerDerivedFullBuild= deletes =./disposition.gened=; images of removed frames may stay behind.
   Skills: =lcnt-build-and-release=, =lcnt-multimedia= (aiTemplates-DE) describe both build forms.
+
+** TODO A failed Cmnd exits 0: every PyCS program's exit code is lost (=g_csMain=)
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/b
+:FOUND: 2026-11-22
+:END:
+
+- *Where*: =bisos/b/cs/main.py= =g_csMain= (~212-225) raises =SystemExit= and catches it, then returns;
+  seeded =.pcs= / =.spcs= run =g_csMain= from an =@atexit.register= handler, where Python ignores
+  =SystemExit=; =bisos/b/cs/cs.py= =G_mainWithClass= returns None or whatever =outcome.error= holds;
+  =invokesProcAllClassed= keeps only the last of several =-i= outcomes.
+- *What*: =csRo-manage.cs -i noSuchVerb= and =airflow-cbs.pcs -i noSuchVerb= print "Invalid Action" and
+  exit 0 (2026-11-22). Nothing that runs a PyCS command --- bash, walkers, sboms, CBM leaves,
+  =subProc=, Claude --- can see a failure.
+- *Impact*: the root cause of most "silent failure" entries here: the CBM leaf status "ok" for a failed
+  run, =fullyMaterialize= =failed=0=, =sbomSpecs_fullUpdate= carrying on, the fonts sbom's hidden unzip
+  failure. Each gets "root cause fixed in bisos.b <version>" when it is released.
+- *Plan*: bisos-pip/b AI-WorkPlan Stage 4 (=outcomeToExitCode=, =sys.exit= or =os._exit= in the atexit
+  context, a =BISOS_CS_EXIT_LEGACY= safety valve). On hold until the Raw-BISOS VM pipeline can test it.
 
 * AI-Activity Templates and Skills
 
