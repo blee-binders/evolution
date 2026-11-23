@@ -1148,6 +1148,34 @@ On another BISOS host, click a line, or the last one for all; mark this DONE onc
 - All of them:
   [[bashRun:cd /bxRepos && for d in bisos-pip/lcnt bisos/lcnt bisos-pip/webCap bisos/asc bisos-pip/pals bisos-web/astro-starter-bystar blee-binders/bisos-apps bxObjects/aiTemplates-workFlow bxObjects/aiTemplates-DE bisos-pip/aiActivity bxlcnt/bro_lcntBases-rawBisos blee-binders/evolution; do git -C $d pull; done]]
 
+* Pull On Other Hosts <2026-11-23 Mon>
+
+** TODO Pull on other hosts --- 2026-11-23, session at /bisos/git/auth/bxRepos/bisos-pip/b
+:PROPERTIES:
+:REPO: other hosts
+:FOUND: 2026-11-23
+:END:
+
+The repos this session committed and pushed (gitGroup model, the clone registry, bisos.b Stage 4,
+the workflow driver and newResume), each as of its last commit. On another BISOS host, click a
+line, or the last one for all; mark this DONE once pulled. The newResume row of the workflow
+driver (blee/vscode-claude 7.5) opens this entry with its =pull-list= link.
+- [[bashRun:git -C /bxRepos/bxObjects/aiTemplates-workFlow pull]] --- 005315b
+- [[bashRun:git -C /bxRepos/bxObjects/aiTemplates-DE pull]] --- 81fb1fc  (then =aiActivityAssemble.cs -i assemblyUpdate=: new =gitGroup= type)
+- [[bashRun:git -C /bxRepos/bxGenesis/base pull]] --- ef182cd  (a new member clone on most hosts: =git clone= it under =/bxRepos/bxGenesis/= if missing)
+- [[bashRun:git -C /bxRepos/bisos-pip/base pull]] --- c6c27ab
+- [[bashRun:git -C /bxRepos/blee/base pull]] --- ff6b7e3
+- [[bashRun:git -C /bxRepos/blee pull]] --- ff6b7e3  (the old-layout clone of the same repo, bx-blee/base)
+- [[bashRun:git -C /bxRepos/bisos/bsip4 pull]] --- 31aa9c1
+- [[bashRun:git -C /bxRepos/bisos-pip/common pull]] --- e8a6342  (not released: bisos.common 1.15 on PyPI)
+- [[bashRun:git -C /bxRepos/bisos-pip/gitist pull]] --- b0312ea
+- [[bashRun:git -C /bxRepos/blee/vscode-claude pull]] --- 56888c9  (then reload =dblock-vscode-claude.el= in Blee)
+- [[bashRun:git -C /bxRepos/bisos-pip/b pull]] --- e9c50d1
+- [[bashRun:git -C /bxRepos/bisos-pip/aiActivity pull]] --- 1f00d6b
+- [[bashRun:git -C /bxRepos/blee-binders/evolution pull]] --- (this commit, last: it holds this entry)
+- All of them:
+  [[bashRun:cd /bxRepos && for d in bxObjects/aiTemplates-workFlow bxObjects/aiTemplates-DE bxGenesis/base bisos-pip/base blee/base blee bisos/bsip4 bisos-pip/common bisos-pip/gitist blee/vscode-claude bisos-pip/b bisos-pip/aiActivity blee-binders/evolution; do git -C $d pull; done]]
+
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
 # eval: (setq-local org-log-done 'time)
