@@ -1202,9 +1202,10 @@ click a line, or the last one for all; mark this DONE once pulled.
 - [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/common pull]] --- 8c20899  (not released: bisos.common 1.16 on PyPI)
 - [[bashRun:git -C /bisos/git/bxRepos/bisos/raw pull]] --- 67d21af
 - [[bashRun:git -C /bisos/git/bxRepos/bxGenesis/base pull]] --- bb5cb58
+- [[bashRun:git -C /bisos/git/bxRepos/bxObjects/aiTemplates-workFlow pull]] --- c8d49e6  (pull lists: paths, hashes, "After the pull")
 - [[bashRun:git -C /bisos/git/bxRepos/blee-binders/evolution pull]] --- (this commit, last: it holds this entry)
 - All of them:
-  [[bashRun:cd /bisos/git/bxRepos && for d in bisos-pip/capability bxObjects/bro_dockerfiles bisos-pip/dockerProc bxGenesis/start bxObjects/bro_rawBisos bisos-web/csPlayer-webUi bxObjects/aiTemplates-DE bisos/bsip4 bisos/lcnt bisos-pip/sbom bisos-pip/common bisos/raw bxGenesis/base blee-binders/evolution; do git -C $d pull; done]]
+  [[bashRun:cd /bisos/git/bxRepos && for d in bisos-pip/capability bxObjects/bro_dockerfiles bisos-pip/dockerProc bxGenesis/start bxObjects/bro_rawBisos bisos-web/csPlayer-webUi bxObjects/aiTemplates-DE bisos/bsip4 bisos/lcnt bisos-pip/sbom bisos-pip/common bisos/raw bxGenesis/base bxObjects/aiTemplates-workFlow blee-binders/evolution; do git -C $d pull; done]]
 
 After the pull:
 - [[bashRun:/bisos/venv/py3/bisos3/bin/pip install --no-cache-dir --upgrade bisos.capability]] --- 0.27
