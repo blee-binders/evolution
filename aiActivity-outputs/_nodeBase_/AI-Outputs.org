@@ -573,6 +573,35 @@ reconcile it into =auth= when =blee-binders/evolution= is cloned there.
 - *Plan*: bisos-pip/b AI-WorkPlan Stage 4 (=outcomeToExitCode=, =sys.exit= or =os._exit= in the atexit
   context, a =BISOS_CS_EXIT_LEGACY= safety valve). On hold until the Raw-BISOS VM pipeline can test it.
 
+** WORKAROUND A CBM sbom never rewrites an existing config file: an fqdn or port change does not reach a host
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/airflow (and devpi, prometheus, grafana, the other CBM packages; bisos-web/csPlayerPerf-drf)
+:FOUND: 2026-11-26
+:END:
+
+- *Where*: each package's =<name>-sbom.pcs= writes =/etc/default/<name>= (and =grafana.ini=, the
+  provisioning files) inside =if [ ! -f <file> ]=, so that hand overrides survive a re-run.
+- *What*: the files are generated from =<name>Info.py=, but only once. When the generator's input
+  changes --- the =.here= to =.internal= rename (bisos-pip/banna AI-WorkPlan.org Stage 4), a banna port
+  --- =cbs_materialize= leaves the old file in place, and the service keeps the old URL
+  (=AIRFLOW__API__BASE_URL=, devpi =--outside-url=, prometheus =--web.external-url=,
+  csPlayerPerf's =ALLOWED_HOSTS= / =CSRF_TRUSTED_ORIGINS=). =<name>Admin.cs -i driftCheck= does see it.
+- *Impact*: on every existing host the rename needs a hand step; a fresh install is not affected.
+- *Related, fixed in bisos-pip/grafana (2026-11-26, not released)*: the opposite for grafana. Its test
+  ran as the invoker, who cannot see into =/etc/grafana= (=750 root:grafana=), so every file looked
+  absent and was overwritten on each run, and =chgrp ... provisioning/*= failed (the glob was
+  expanded by the invoker's shell) while the walk still logged "ran: cbs_materialize ok". Now
+  =sudo test -f= and =sudo sh -c '...'=.
+
+*Workaround*: after the re-materialize, change the names in place and let the package confirm:
+
+#+begin_example
+sudo grep -lE '[A-Za-z0-9]\.here\b' /etc/default/* /etc/grafana/grafana.ini
+sudo sed -i -E 's/\b([A-Za-z0-9-]+)\.here\b/\1.internal/g' <each file listed>
+<name>Admin.cs -i driftCheck            # "agrees with the generator"
+sudo systemctl restart <its units>
+#+end_example
+
 * AI-Activity Templates and Skills
 
 ** INFO PALS sites: =pals-site= skill, and a banna-or-PALS choice in astro-site
@@ -805,6 +834,9 @@ of them, and orphaned libraries are harmless while a missing one is not.
   message.
 - *Wanted*: the rawBisos install sets =Types: deb deb-src= in =debian.sources=; =debAptSourcesManage.sh=
   learns deb822 (verify and enable).
+- *Implemented* (2026-11-25, bxGenesis/base AI-WorkPlan.org 3.2.8): both, in bxGenesis/start
+  =raw-bisos.sh= and bisos/bsip4 =debAptSourcesManage.sh=. Mark DONE once a VM run's =emacs31SrcBuild=
+  passes.
 
 ** TODO =lcaEmacsSrcBinsPrep.sh=: a failed clone reported as done; emacsclient linked to a terminal
 :PROPERTIES:
@@ -1097,6 +1129,36 @@ venv path while appearing correctly migrated.
   under =(when (fboundp ...))= (aiplus, blee-menus, open-in, vscode-claude, bidi-menu, blee-libs'
   tlm, the mtdt packages), so a package not loaded drops its entry instead of breaking the menu.
   Measured: the Apps rebuild costs 0.74 s, of which the vscode-claude menu is 0.013 s.
+
+** INFO =<name>.here= is now =<name>.internal=: =.here= is an https-only gTLD in Chrome
+:PROPERTIES:
+:REPO: /bisos/git/bxRepos/bisos-pip/banna (Stage 4)
+:FOUND: 2026-11-25
+:END:
+
+=.here= is a Google Registry gTLD on Chromium's HSTS preload list (=force-https=, subdomains included)
+and in General Availability since 2026-11-17: Chrome turns =http://<x>.here= into =https://= before any
+lookup, so no =/etc/hosts= line helps, and an unlisted name now reaches the public site. Every BISOS
+loopback name is now =<name>.internal= (ICANN-reserved for private use, not preloaded); the addresses
+(=127.0.22.x=, the PALS' =127.0.55.x=) are unchanged, and the =_dev= names became =-dev=
+(=csPlayerUi-dev.internal=). Not =.localhost=: browsers and curl answer loopback for it without
+reading =/etc/hosts=. The suffix comes from =bisos.banna= (=tcpPorts.hereDomain=, =hereFqdn()=), so
+write names through it. Identifiers keep "here" (=hereIp=, =uri/here/value=, =-here-dns.pcs=), and
+the older entries of this file keep the =.here= of their time.
+
+Converting a host (done and checked on the dev host 2026-11-26; banna AI-WorkPlan.org 4.6 Results):
+
+#+begin_example
+sed -i -E 's/\.here([[:space:]]+#)/.internal\1/' /bisos/var/palsHere/uri.list   # PALS names; addresses kept
+# /etc/hosts: update both dblocks (bannaForEtcHosts, palsForEtcHosts)
+cd <bro_rawBisosPlatform>/sys/cbm/collective/hereWeb && ./ftoBranchProc.spcs -i fto_forwardToLeaves --cmndName="cbm_materialize"
+<each PALS leaf>/cbmProc.spcs -i cbm_materialize
+sudo rm /etc/nginx/sites-{enabled,available}/*.here && sudo nginx -t && sudo systemctl reload nginx
+# /etc/default/*: the WORKAROUND "A CBM sbom never rewrites an existing config file"
+curl -s -o /dev/null -w '%{http_code}\n' http://<name>.internal/
+#+end_example
+
+It needs the new bisos.banna and the packages that call it, or their editable copies.
 
 * Pull On Other Hosts <2026-11-03 Tue>
 
