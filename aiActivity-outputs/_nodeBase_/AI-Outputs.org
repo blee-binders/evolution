@@ -859,6 +859,12 @@ of them, and orphaned libraries are harmless while a missing one is not.
 - *Wanted*: the script checks the clone (=configure.ac= present) and fails; =emacsClientMatching= checks
   that the pid is an Emacs (=/proc/<pid>/exe=) and does nothing otherwise, or =setAsDefault= takes the
   client to match as a parameter.
+- *Fixed, the emacsclient half* (2026-11-26; seen again in a fresh Debian 13 container: linked to
+  =/usr/bin/bash=): bisos/blee =0daf983= --- =setAsDefault= links =/usr/local/bin/emacsclient= to the
+  =emacsclient-<fullVer>= of the same build, no longer through =emacsClientMatchingSet=; bisos-pip/capSpecs
+  =0267813= --- =fullCheck='s =client link= requires =emacsclient-31.1= and =fullUpdate= re-runs
+  =setAsDefault= when a link is wrong. Not run in a container yet (bxGenesis/start =<<3.6>>=). Still
+  open: the clone check, and =vis_emacsClientMatching= itself (it still takes any program).
 
 * Blee --- Org Commands and Dblocks
 
@@ -1406,6 +1412,73 @@ After the pull:
   and Defects --- BISOS Framework Packages): CBM bxObjects/bro_rawBisos, the hereWeb leaves and the
   PALS example leaf are re-materialized.
 - pycs: its GitHub repo moved to bisos-pip/PyCS; =git remote set-url origin git@github.com:bisos-pip/PyCS.git=.
+
+* Pull On Other Hosts <2026-11-26 Thu>
+
+** TODO Pull on other hosts --- 2026-11-26 (evening), session at /bisos/git/auth/bxRepos/bisos-pip/b
+:PROPERTIES:
+:REPO: other hosts
+:FOUND: 2026-11-26
+:END:
+
+The verify framework (bisos-pip/capability AI-WorkPlan.org Stage 5, phase A: =cbm_verify=,
+=sysCbmManage.cs -i fullyVerify= / =verifyCompare=, verdict lines in the package checks, the leaves'
+declarations, the rebuild's =verify= step, platform.internal's Verify column), the emacsclient fix, a
+log for =sysCbmFullyMaterialize.sh=, and the batch =/bx-git-commit-walk=. The previous entry (the
+=.internal= rename, earlier the same day) comes first on a host that has not pulled it.
+
+*WARNING --- release bisos.capability first.* bxObjects/bro_rawBisos =d9d351a= is pushed: its leaves
+call =cbmProc_seedInfo.setup(verifyUnits=, verifySpec=, hereName=)=, which bisos.capability 0.28 (PyPI)
+does not accept. A host or a fresh container that pulls it with the PyPI bisos.capability cannot load
+those leaves, =cbm_materialize= included. An editable bisos.capability pulled to =c3a79cf= is fine.
+
+The pulls:
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/capability pull]] --- c3a79cf  (the verify framework: cbm_verify, fullyVerify, verifyCompare; first)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/airflow pull]] --- 5f9b591  (driftCheck verdict line, leaf template)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/kafka pull]] --- 1c2f3c5  (driftCheck verdict line, leaf template)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/prometheus pull]] --- 3f4eedf  (driftCheck verdict line, leaf template)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/grafana pull]] --- c7195cb  (driftCheck verdict line, leaf template)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/pypiserver pull]] --- 9c5f2b5  (driftCheck verdict line, leaf template)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/devpi pull]] --- d7e417c  (driftCheck verdict line, leaf template)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/gitlab pull]] --- c6e9f1c  (driftCheck verdict line, leaf template)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/geneweb pull]] --- 248b04b  (driftCheck verdict line, leaf template)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/webCap pull]] --- e74b557  (siteVerify verdict line)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/pals pull]] --- d26efe6  (the leaf generator writes hereName, verifySpec)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/lcnt pull]] --- 557bcab  (toolchainCheck verdict lines)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/capSpecs pull]] --- 0267813  (the emacsclient fix; fullCheck verdict lines)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/b pull]] --- 665295a  (Stage 4 comes after capability's Stage 5)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos/blee pull]] --- 0daf983  (setAsDefault links emacsclient)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos/raw pull]] --- 96ef5bc  (rawBuildContainer.cs: the verify step)
+- [[bashRun:git -C /bisos/git/bxRepos/bxObjects/bro_dockerfiles pull]] --- 1296690  (sysCbmFullyMaterialize.sh logs to ~)
+- [[bashRun:git -C /bisos/git/bxRepos/bxObjects/bro_rawBisos pull]] --- d9d351a  (the leaves' verify declarations, platform.internal's Verify column: see the WARNING)
+- [[bashRun:git -C /bisos/git/bxRepos/bxObjects/aiTemplates-workFlow pull]] --- ef77ebf  (bx-git-commit-walk: all messages at once)
+- [[bashRun:git -C /bisos/git/bxRepos/bxGenesis/start pull]] --- a78fa0f  (Stage 3: the bash problems of a fresh Debian 13 run)
+- [[bashRun:git -C /bisos/git/bxRepos/blee-binders/evolution pull]] --- (this commit, last: it holds this entry)
+- All of them:
+  [[bashRun:cd /bisos/git/bxRepos && for d in bisos-pip/capability bisos-pip/airflow bisos-pip/kafka bisos-pip/prometheus bisos-pip/grafana bisos-pip/pypiserver bisos-pip/devpi bisos-pip/gitlab bisos-pip/geneweb bisos-pip/webCap bisos-pip/pals bisos-pip/lcnt bisos-pip/capSpecs bisos-pip/b bisos/blee bisos/raw bxObjects/bro_dockerfiles bxObjects/bro_rawBisos bxObjects/aiTemplates-workFlow bxGenesis/start blee-binders/evolution; do git -C $d pull; done]]
+
+After the pull:
+- *bisos.capability first* --- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/capability/py3]] (0.28 on PyPI) --- the verify framework, c3a79cf
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/pals/py3]] (0.19 on PyPI) --- the leaf generator writes hereName, verifySpec, d26efe6
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/airflow/py3]] (0.15 on PyPI) --- driftCheck verdict line, leaf template, 5f9b591
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/kafka/py3]] (0.11 on PyPI) --- driftCheck verdict line, leaf template, 1c2f3c5
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/prometheus/py3]] (0.11 on PyPI) --- driftCheck verdict line, leaf template, 3f4eedf
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/grafana/py3]] (0.12 on PyPI) --- driftCheck verdict line, leaf template, c7195cb
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/pypiserver/py3]] (0.11 on PyPI) --- driftCheck verdict line, leaf template, 9c5f2b5
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/devpi/py3]] (0.11 on PyPI) --- driftCheck verdict line, leaf template, d7e417c
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/gitlab/py3]] (0.11 on PyPI) --- driftCheck verdict line, leaf template, c6e9f1c
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/geneweb/py3]] (0.11 on PyPI) --- driftCheck verdict line, leaf template, 248b04b
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/webCap/py3]] (0.18 on PyPI) --- siteVerify verdict line, e74b557
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/lcnt/py3]] (0.16 on PyPI) --- toolchainCheck verdict lines, leaf templates, 557bcab
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/capSpecs/py3]] (0.12 on PyPI) --- the emacsclient fix, fullCheck verdict lines, 0267813
+- No PyPI upgrade: nothing of this entry is on PyPI yet.
+- No =pkgReInstall=: no =py3/bin/= script was added, removed or renamed, and no =requires= changed.
+- No =aiActivityAssemble.cs -i assemblyUpdate=: aiTemplates-workFlow changed a command, it added none.
+- CBM emacsSrcBuild (bisos-pip/capSpecs): re-materialize, once released or editable: =fullUpdate= now
+  re-runs =setAsDefault= when =/usr/local/bin/emacsclient= is wrong. Mind which Emacs the running Blee is.
+- CBM platform (bxObjects/bro_rawBisos): rebuild its site for the Verify column, after a =fullyVerify=.
+- bxObjects/bro_dockerfiles: rebuild the confined image (and re-create instances) for the
+  =sysCbmFullyMaterialize.sh= log.
 
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
