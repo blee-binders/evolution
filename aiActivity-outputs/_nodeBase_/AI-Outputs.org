@@ -1280,6 +1280,133 @@ After the pull:
 - CBM (bxObjects/bro_rawBisos): a host that walks its leaves re-materializes them --- they now
   bootstrap their CBS, and their statuses move to =/bisos/var/cbm/=.
 
+* Pull On Other Hosts <2026-11-26 Thu>
+
+** TODO Pull on other hosts --- 2026-11-26, session at /bisos/git/auth/bxRepos/bisos-pip/b
+:PROPERTIES:
+:REPO: other hosts
+:FOUND: 2026-11-26
+:END:
+
+The =.here= to =.internal= rename (bisos-pip/banna Stage 4) and the bisos-pip gitGroup housekeeping
+(=.gitignore=, =.gitattributes=, the generated =py3/README.rst= and =py3/_description.org= untracked).
+
+Before the pull: the commits delete the generated files, and git refuses to pull over a regenerated
+copy. Restore them first (it changes only those two files, which the next =pypiProc.sh= recreates):
+- [[bashRun:cd /bisos/git/bxRepos && for d in bisos-pip/airflow bisos-pip/b bisos-pip/banna bisos-pip/bashStandaloneIcmSeed bisos-pip/basics bisos-pip/binsprep bisos-pip/bootstrap bisos-pip/bpo bisos-pip/bx-bases bisos-pip/bxoGitlab bisos-pip/capSpecs bisos-pip/capability bisos-pip/cmdb bisos-pip/cntnr bisos-pip/common bisos-pip/core bisos-pip/coreDist bisos-pip/crypt bisos-pip/cs bisos-pip/csPlayer bisos-pip/currents bisos-pip/debian bisos-pip/examples bisos-pip/facter bisos-pip/full bisos-pip/gcipher bisos-pip/githubApi bisos-pip/gitist bisos-pip/gnome bisos-pip/gossonot bisos-pip/graphviz-cs bisos-pip/icm bisos-pip/io bisos-pip/lcnt bisos-pip/marme bisos-pip/marmee bisos-pip/mmwsIcm bisos-pip/myLinkedIn bisos-pip/namespace bisos-pip/pals bisos-pip/platform bisos-pip/provision bisos-pip/pycs bisos-pip/qmail bisos-pip/qmailMua bisos-pip/qmailSvc bisos-pip/regfps bisos-pip/siteRegistrars bisos-pip/sites bisos-pip/things bisos-pip/transit bisos-pip/usgAcct bisos-pip/vagrantBaseBoxes bisos-pip/virsh bisos-pip/vscodeClaude bisos-pip/webCap; do git -C $d checkout -- py3/README.rst py3/_description.org 2>/dev/null; done]]
+
+The pulls:
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/banna pull]] --- b943d6e  (Stage 4: hereDomain, hereFqdn, the -dev names; first)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/pals pull]] --- b1d985e
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/dnsCap pull]] --- 73db8a4
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/airflow pull]] --- 3bf96f3
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/b pull]] --- 4e9a19f
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/bashStandaloneIcmSeed pull]] --- 7b0e813
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/basics pull]] --- d2c3c01
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/binsprep pull]] --- dfba830
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/bootstrap pull]] --- 82273e9
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/bpo pull]] --- 24a5931
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/bx-bases pull]] --- 91e4be7
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/bxoGitlab pull]] --- f6597c8
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/capSpecs pull]] --- 3ba2ada
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/capability pull]] --- 3cab617
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/cmdb pull]] --- 70f6dec
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/cntnr pull]] --- af35231
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/common pull]] --- e1601f6
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/core pull]] --- 5379beb
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/coreDist pull]] --- 640df8a
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/crypt pull]] --- e8f093b
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/cs pull]] --- fe09b4c
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/csPlayer pull]] --- 3d5a970
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/csSeed pull]] --- 5acba5b
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/currents pull]] --- aac6aee
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/debian pull]] --- 55692d8
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/devpi pull]] --- 110e1ae
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/examples pull]] --- c44dbf0
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/facter pull]] --- 4f7df7f
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/fileObj pull]] --- 3ca8fab
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/full pull]] --- d71bd8b
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/gcipher pull]] --- 857aad8
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/geneweb pull]] --- 19882e8
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/githubApi pull]] --- 5c1cec9
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/gitist pull]] --- bff3c55  (gitGroup_untrack)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/gitlab pull]] --- d93eab8
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/gmail-oauth2-facilities pull]] --- 93ac71f
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/gnome pull]] --- 832d1c1
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/gossonot pull]] --- 855e32d
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/grafana pull]] --- 6d71df0  (also the sbom's sudo test / sudo sh -c fix)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/graphviz-cs pull]] --- 9432e21
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/icm pull]] --- 790b351
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/io pull]] --- ba41105
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/kafka pull]] --- bf21c68
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/lcnt pull]] --- c6a5c93
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/marme pull]] --- 3ca83fe
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/marmee pull]] --- 118c1c8
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/mmwsIcm pull]] --- ac31094
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/myLinkedIn pull]] --- d476a85
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/namespace pull]] --- c8f1935
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/pipreqsPlus pull]] --- 594d8fe
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/platform pull]] --- ee3fe8d
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/postgres pull]] --- edb3198
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/prometheus pull]] --- f2f1007
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/provision pull]] --- d26d5e2
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/pyDblock pull]] --- 4b6e552
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/pycs pull]] --- 581966f
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/pypiserver pull]] --- be4874c
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/qmail pull]] --- 05b66dc
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/qmailMua pull]] --- 36b8e22
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/qmailSvc pull]] --- 2e56270
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/regfps pull]] --- 23ebac5
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/siteRegistrars pull]] --- ed39093
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/sites pull]] --- 0b5c690
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/things pull]] --- 7e63ac5
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/tocsModules pull]] --- 582d0cd
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/transit pull]] --- 491bacc
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/uploadAsCs pull]] --- d705d7b
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/usgAcct pull]] --- b884ed2
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/vagrantBaseBoxes pull]] --- c314603
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/virsh pull]] --- bf1491b
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/vscodeClaude pull]] --- ec8d6ce
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/webCap pull]] --- 4fa1f51
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-web/astro-starter-bystar pull]] --- ae099c6
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-web/csPlayer-webUi pull]] --- cdbece7
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-web/csPlayerPerf-drf pull]] --- da85995
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-web/gatsby-starter-bystar-nestedSidebar pull]] --- 501f4bf
+- [[bashRun:git -C /bisos/git/bxRepos/bisos/asc pull]] --- ea080e4
+- [[bashRun:git -C /bisos/git/bxRepos/bisos/bsip4 pull]] --- d0171c5  (debAptSourcesManage.sh reads deb822 (base:3.2.8))
+- [[bashRun:git -C /bisos/git/bxRepos/bxGenesis/base pull]] --- ac2b2e0  (3.2.8)
+- [[bashRun:git -C /bisos/git/bxRepos/bxGenesis/start pull]] --- 38b7585
+- [[bashRun:git -C /bisos/git/bxRepos/bxObjects/aiTemplates-DE pull]] --- e52153a  (skills: .internal)
+- [[bashRun:git -C /bisos/git/bxRepos/bxObjects/bro_rawBisos pull]] --- 9db861c  (the leaves, sites and PALS example: .internal)
+- [[bashRun:git -C /bisos/git/bxRepos/blee-binders/evolution pull]] --- (this commit, last: it holds this entry)
+- All of them:
+  [[bashRun:cd /bisos/git/bxRepos && for d in bisos-pip/banna bisos-pip/pals bisos-pip/dnsCap bisos-pip/airflow bisos-pip/b bisos-pip/bashStandaloneIcmSeed bisos-pip/basics bisos-pip/binsprep bisos-pip/bootstrap bisos-pip/bpo bisos-pip/bx-bases bisos-pip/bxoGitlab bisos-pip/capSpecs bisos-pip/capability bisos-pip/cmdb bisos-pip/cntnr bisos-pip/common bisos-pip/core bisos-pip/coreDist bisos-pip/crypt bisos-pip/cs bisos-pip/csPlayer bisos-pip/csSeed bisos-pip/currents bisos-pip/debian bisos-pip/devpi bisos-pip/examples bisos-pip/facter bisos-pip/fileObj bisos-pip/full bisos-pip/gcipher bisos-pip/geneweb bisos-pip/githubApi bisos-pip/gitist bisos-pip/gitlab bisos-pip/gmail-oauth2-facilities bisos-pip/gnome bisos-pip/gossonot bisos-pip/grafana bisos-pip/graphviz-cs bisos-pip/icm bisos-pip/io bisos-pip/kafka bisos-pip/lcnt bisos-pip/marme bisos-pip/marmee bisos-pip/mmwsIcm bisos-pip/myLinkedIn bisos-pip/namespace bisos-pip/pipreqsPlus bisos-pip/platform bisos-pip/postgres bisos-pip/prometheus bisos-pip/provision bisos-pip/pyDblock bisos-pip/pycs bisos-pip/pypiserver bisos-pip/qmail bisos-pip/qmailMua bisos-pip/qmailSvc bisos-pip/regfps bisos-pip/siteRegistrars bisos-pip/sites bisos-pip/things bisos-pip/tocsModules bisos-pip/transit bisos-pip/uploadAsCs bisos-pip/usgAcct bisos-pip/vagrantBaseBoxes bisos-pip/virsh bisos-pip/vscodeClaude bisos-pip/webCap bisos-web/astro-starter-bystar bisos-web/csPlayer-webUi bisos-web/csPlayerPerf-drf bisos-web/gatsby-starter-bystar-nestedSidebar bisos/asc bisos/bsip4 bxGenesis/base bxGenesis/start bxObjects/aiTemplates-DE bxObjects/bro_rawBisos blee-binders/evolution; do git -C $d pull; done]]
+
+After the pull:
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/banna/py3]] (0.48 on PyPI) --- tcpPorts.hereDomain/hereFqdn, the -dev names, b943d6e; release first: the others call it
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/pals/py3]] (0.18 on PyPI) --- the name check from hereDomain, b1d985e
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/dnsCap/py3]] (0.15 on PyPI) --- Knot's internal. zone, f30258e
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/airflow/py3]] (0.14 on PyPI) --- fqdn from hereFqdn, 3bf96f3
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/kafka/py3]] (0.1 on PyPI) --- fqdn from hereFqdn, bf21c68
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/prometheus/py3]] (0.1 on PyPI) --- fqdn from hereFqdn, f2f1007
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/grafana/py3]] (0.11 on PyPI) --- fqdn from hereFqdn; the sbom's root-side test and glob, 6d71df0
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/pypiserver/py3]] (0.1 on PyPI) --- fqdn from hereFqdn, be4874c
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/devpi/py3]] (0.1 on PyPI) --- fqdn from hereFqdn, 110e1ae
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/gitlab/py3]] (0.1 on PyPI) --- fqdn from hereFqdn, d93eab8
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/geneweb/py3]] (0.1 on PyPI) --- fqdn from hereFqdn, 19882e8
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/webCap/py3]] (0.17 on PyPI) --- .internal in examples and texts, 4fa1f51
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/postgres/py3]] (0.1 on PyPI) --- .internal in texts, edb3198
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/capability/py3]] (0.27 on PyPI) --- a comment, 3cab617
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/gitist/py3]] (0.13 on PyPI) --- gitGroup_untrack, bff3c55
+- No =pkgReInstall=: no =py3/bin/= script was added, removed or renamed, and no =requires= changed.
+- No PyPI upgrade: nothing of this session is on PyPI yet; a host running the PyPI copies keeps
+  =.here= until the releases above (bisos.banna first).
+- The host itself (/etc/hosts, the PALS list, the vhosts, the =/etc/default= files): convert it as
+  in the INFO entry "=<name>.here= is now =<name>.internal=" and its WORKAROUND (Captured Knowledge,
+  and Defects --- BISOS Framework Packages): CBM bxObjects/bro_rawBisos, the hereWeb leaves and the
+  PALS example leaf are re-materialized.
+- pycs: its GitHub repo moved to bisos-pip/PyCS; =git remote set-url origin git@github.com:bisos-pip/PyCS.git=.
+
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
 # eval: (setq-local org-log-done 'time)
