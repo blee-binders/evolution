@@ -1516,6 +1516,51 @@ After the pull:
 - bxObjects/bro_dockerfiles: no image rebuild needed; images built before keep the full script. A
   rebuilt image's wrapper runs =/bisos/core/raw/bin/sysCbmFullyMaterialize.sh=, from bisos/raw =1ce83ea=.
 
+* Pull On Other Hosts <2026-11-28 Sat>
+
+** TODO Pull on other hosts --- 2026-11-28 (second), session at /bisos/git/auth/bxRepos/bisos-pip/b
+:PROPERTIES:
+:REPO: other hosts
+:FOUND: 2026-11-28
+:END:
+
+The first box CBMs run (bisos/raw rebuild AI-WorkPlan.org =<<3.7>>=): nvm for bystar, not the
+install account; bisos.sbom runs a sbom's sub-sboms first; fullyMaterialize walks induct (Emacs and
+Blee, then lcnt) before hereWeb and pals; the Astro sites bring their own Node and HeVeA through
+bisos.webCap's new =astroSite-sbom.pcs=; vscodeClaude enabled. The entry above comes first on a host
+that has not pulled it.
+
+WARNING: astro-starter-bystar, csPlayer-webUi and bro_rawBisos (platform.internal) name
+=astroSite-sbom.pcs= as their CBS's sbom. Until it is on the host (webCap's =pkgReInstall= below, or
+the webCap release, 0.19 on PyPI), those sites' sbom step fails. Pull webCap first.
+
+The pulls:
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/webCap pull]] --- 13d7d6b  (astroSite-sbom.pcs; first)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/sbom pull]] --- 95640fa  (sbom_fullUpdate: the sbomsList first)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/capability pull]] --- 39246f0  (the walk: induct, hereWeb, pals)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos/bsip4 pull]] --- 4eef29d  (nvm-sbom.pcs as bystar)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-pip/pals pull]] --- edd499d  (pals-cbs.spcs: sbom astroSite-sbom.pcs)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-web/astro-starter-bystar pull]] --- 73e9eb7  (sbom astroSite-sbom.pcs)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-web/csPlayer-webUi pull]] --- 41654c2  (sbom astroSite-sbom.pcs)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos-web/gatsby-starter-bystar-nestedSidebar pull]] --- ce9d41f  (sbom reactPlus-sbom.pcs)
+- [[bashRun:git -C /bisos/git/bxRepos/bxObjects/bro_rawBisos pull]] --- a156dc2  (induct order, vscodeClaude enabled, platform's sbom)
+- [[bashRun:git -C /bisos/git/bxRepos/bisos/raw pull]] --- a4f725a  (rebuild AI-WorkPlan 3.7)
+- [[bashRun:git -C /bisos/git/bxRepos/blee-binders/evolution pull]] --- (this commit, last: it holds this entry)
+- All of them:
+  [[bashRun:cd /bisos/git/bxRepos && for d in bisos-pip/webCap bisos-pip/sbom bisos-pip/capability bisos/bsip4 bisos-pip/pals bisos-web/astro-starter-bystar bisos-web/csPlayer-webUi bisos-web/gatsby-starter-bystar-nestedSidebar bxObjects/bro_rawBisos bisos/raw blee-binders/evolution; do git -C $d pull; done]]
+
+After the pull:
+- bisos-pip/webCap: a new =py3/bin/astroSite-sbom.pcs=:
+  [[bashRun:cd /bisos/git/bxRepos/bisos-pip/webCap/py3 && ./pypiProc.sh -i pkgReInstall edit /bisos/venv/py3/dev-bisos3]]
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/webCap/py3]] (0.19 on PyPI) --- astroSite-sbom.pcs, 13d7d6b. Release it first: the sites above need it on a box.
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/sbom/py3]] (0.20 on PyPI) --- sub-sboms first, 95640fa
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/capability/py3]] (0.29 on PyPI) --- the walk order, 39246f0
+- not released: [[bashRun:pushd /bisos/git/bxRepos/bisos-pip/pals/py3]] (0.20 on PyPI) --- pals-cbs.spcs's sbom, edd499d; after webCap's release
+- bisos.provision 0.28 is now on PyPI (the entry above said not released): a box's =deBisosIfy=
+  fetches it with pipx; nothing to do on a host already provisioned.
+- Capabilities changed, to re-materialize: vscodeClaude (now enabled); astroStarter, csPlayerUi,
+  platform, the PALS example and gatsbyBxSidebar (their own sbom).
+
 # Local Variables:
 # eval: (setq-local toc-org-max-depth 4)
 # eval: (setq-local org-log-done 'time)
